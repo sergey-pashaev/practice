@@ -1,7 +1,7 @@
 # Chapter 1: Character Input and Output
 
 - [x] [Exercise 2-1](./ex.2.1.c)
-- [ ] Exercise 2-2
+- [x] [Exercise 2-2](./ex.2.2.c)
 - [ ] Exercise 2-3
 - [ ] Exercise 2-4
 - [ ] Exercise 2-5
