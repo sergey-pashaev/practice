@@ -9,4 +9,4 @@
 - [x] [Exercise 2-7](./ex.2.7.c)
 - [x] [Exercise 2-8](./ex.2.8.c)
 - [x] [Exercise 2-9](./ex.2.9.c)
-- [ ] Exercise 2-10
+- [x] [Exercise 2-10](./ex.2.10.c)
