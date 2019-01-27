@@ -6,7 +6,7 @@
 - [x] [Exercise 2-4](./ex.2.4.c)
 - [x] [Exercise 2-5](./ex.2.5.c)
 - [x] [Exercise 2-6](./ex.2.6.c)
-- [ ] Exercise 2-7
+- [x] [Exercise 2-7](./ex.2.7.c)
 - [ ] Exercise 2-8
 - [ ] Exercise 2-9
 - [ ] Exercise 2-10
