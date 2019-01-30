@@ -1,4 +1,4 @@
-# Chapter 1: Character Input and Output
+# Chapter 2: Character Input and Output
 
 - [x] [Exercise 2-1](./ex.2.1.c)
 - [x] [Exercise 2-2](./ex.2.2.c)
