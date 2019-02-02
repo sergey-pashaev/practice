@@ -5,3 +5,4 @@ if(${CMAKE_VERSION} VERSION_LESS 3.12)
 endif()
 
 add_subdirectory(c)
+add_subdirectory(cpp)
