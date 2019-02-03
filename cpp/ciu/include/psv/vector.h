@@ -59,6 +59,11 @@ class Vector {
         data_[size_++] = v;
     }
 
+    T PopBack() {
+        if (size_ < 1) ThrowOutOfRange();
+        return data_[size_--];
+    }
+
     void Insert(int index, T v) {
         if (index > size_ || index < 0) ThrowOutOfRange();
         if (size_ + 1 == capacity_) Increase();
@@ -89,6 +94,28 @@ class Vector {
         std::swap(data_, data);
         capacity_ = capacity;
         delete[] data;
+    }
+
+    int Find(T v) const {
+        for (int i = 0; i < size_; ++i) {
+            if (data_[i] == v) return i;
+        }
+
+        return -1;
+    }
+
+    int Remove(T v) {
+        int removed = 0;
+        for (int i = 0, j = 0; i < size_; ++i) {
+            if (data_[i] == v) {
+                ++removed;
+            } else {
+                data_[j++] = data_[i];
+            }
+        }
+
+        size_ -= removed;
+        return removed;
     }
 
    private:

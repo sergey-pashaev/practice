@@ -164,3 +164,70 @@ TEST_CASE("vector reserve", "[vector][template]") {
     REQUIRE_NOTHROW(v1.Reserve(cap / 2));
     REQUIRE(v1.Capacity() == cap + 1);
 }
+
+TEST_CASE("vector push & pop", "[vector][template]") {
+    typedef int T;
+
+    Vector<T> v1;
+
+    // pop empty vector
+    REQUIRE_THROWS_AS(v1.PopBack(), std::out_of_range);
+
+    v1.PushBack(0);
+    v1.PushBack(1);
+    REQUIRE(v1.Size() == 2);
+    REQUIRE(v1.At(0) == 0);
+    REQUIRE(v1.At(1) == 1);
+
+    REQUIRE_NOTHROW(v1.PopBack() == 1);
+    REQUIRE(v1.Size() == 1);
+    REQUIRE(v1.At(0) == 0);
+
+    REQUIRE_NOTHROW(v1.PopBack() == 0);
+    REQUIRE(v1.Size() == 0);
+}
+
+TEST_CASE("vector find", "[vector][template]") {
+    typedef int T;
+
+    const int n = 64;
+    Vector<T> v1;
+    for (int i = 0; i < n; ++i) v1.PushBack(i);
+
+    REQUIRE(v1.Find(0) == 0);
+    REQUIRE(v1.Find(n - 1) == n - 1);
+
+    v1.At(0) = 1;
+
+    REQUIRE(v1.Find(0) == -1);
+    REQUIRE(v1.Find(n) == -1);
+}
+
+TEST_CASE("vector remove", "[vector][template]") {
+    typedef int T;
+
+    Vector<T> v1;
+    v1.PushBack(0);
+    v1.PushBack(1);
+    v1.PushBack(3);
+    v1.PushBack(2);
+    v1.PushBack(3);
+    v1.PushBack(3);
+    v1.PushBack(4);
+    v1.PushBack(3);
+
+    REQUIRE(v1.Size() == 8);
+
+    // remove non-existing element
+    REQUIRE(v1.Remove(-1) == 0);
+    REQUIRE(v1.Size() == 8);
+
+    // remove 3
+    REQUIRE(v1.Remove(3) == 4);
+    REQUIRE(v1.Size() == 4);
+
+    REQUIRE(v1.At(0) == 0);
+    REQUIRE(v1.At(1) == 1);
+    REQUIRE(v1.At(2) == 2);
+    REQUIRE(v1.At(3) == 4);
+}
