@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.1..3.11)
 
 project(ciu)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 include(CTest)
 
 include_directories(include)
