@@ -31,4 +31,8 @@ function(resource FILE)
   configure_file("${FILE}" "${FILE}" COPYONLY)
 endfunction()
 
+add_definitions(-ggdb3)
+add_definitions(-Wall)
+add_definitions(-Wextra)
+
 add_subdirectory(src)

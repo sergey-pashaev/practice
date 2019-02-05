@@ -6,6 +6,10 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 include(CTest)
 
+add_definitions(-ggdb3)
+add_definitions(-Wall)
+add_definitions(-Wextra)
+
 include_directories(include)
 include_directories(src)
 include_directories(thirdparty)
