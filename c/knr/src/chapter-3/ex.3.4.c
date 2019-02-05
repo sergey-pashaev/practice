@@ -44,7 +44,7 @@ void itoa(int n, char s[]) {
     if (min) {
         n = INT_MAX; /* use int max for int min */
     } else {
-        n = -n;
+        if (sign < 0) n = -n;
     }
 
     do {
