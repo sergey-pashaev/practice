@@ -87,3 +87,45 @@ TEST_CASE("list copy ctor", "[linked_list][template]") {
     REQUIRE(l2.At(1) == 2);
     REQUIRE(l2.At(2) == 3);
 }
+
+TEST_CASE("list insert", "[linked_list][template]") {
+    typedef int T;
+
+    LinkedList<T> l;
+    REQUIRE_THROWS_AS(l.Insert(0, 1), std::out_of_range);
+
+    l.PushBack(0);
+    l.PushBack(2);
+    l.Insert(0, 1);
+
+    REQUIRE(l.At(0) == 1);
+    REQUIRE(l.At(1) == 0);
+    REQUIRE(l.At(2) == 2);
+
+    l.Insert(2, 3);
+    REQUIRE(l.At(2) == 3);
+    REQUIRE(l.At(3) == 2);
+}
+
+TEST_CASE("list remove", "[linked_list][template]") {
+    typedef int T;
+
+    LinkedList<T> l;
+    REQUIRE_THROWS_AS(l.Remove(0), std::out_of_range);
+
+    l.PushBack(0);
+    l.PushBack(1);
+    l.PushBack(2);
+    l.PushBack(3);
+
+    l.Remove(0);
+    REQUIRE(l.At(0) == 1);
+
+    l.Remove(2);
+    REQUIRE(l.At(1) == 2);
+
+    l.Remove(0);
+    REQUIRE(l.At(0) == 2);
+
+    l.Remove(0);
+}

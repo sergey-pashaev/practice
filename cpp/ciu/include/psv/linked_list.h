@@ -148,6 +148,45 @@ class LinkedList {
         return head_->v;
     }
 
+    void Insert(std::size_t index, T v) {
+        std::size_t i = 0;
+        for (Node *cur = head_, *prev = nullptr; cur;
+             prev = cur, cur = cur->next, ++i) {
+            if (i == index) {
+                Node* t = new Node(v);
+                if (prev) {
+                    prev->next = t;
+                    t->next = cur;
+                } else {
+                    head_ = t;
+                    head_->next = cur;
+                }
+                return;
+            }
+        }
+
+        ThrowOutOfRange();
+    }
+
+    void Remove(std::size_t index) {
+        std::size_t i = 0;
+        for (Node *cur = head_, *prev = nullptr; cur;
+             prev = cur, cur = cur->next, ++i) {
+            if (i == index) {
+                Node* next = cur->next;
+                delete cur;
+                if (prev) {
+                    prev->next = next;
+                } else {
+                    head_ = next;
+                }
+                return;
+            }
+        }
+
+        ThrowOutOfRange();
+    }
+
    private:
     void ThrowOutOfRange() const {
         throw std::out_of_range("index out of range");
