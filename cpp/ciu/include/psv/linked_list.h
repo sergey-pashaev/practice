@@ -187,6 +187,42 @@ class LinkedList {
         ThrowOutOfRange();
     }
 
+    void RemoveValue(T v) {
+        for (Node *cur = head_, *prev = nullptr; cur;
+             prev = cur, cur = cur->next) {
+            if (cur->v == v) {
+                Node* next = cur->next;
+                delete cur;
+                if (prev) {
+                    prev->next = next;
+                } else {
+                    head_ = next;
+                }
+                return;
+            }
+        }
+    }
+
+    void Reverse() {
+        Node* tail = nullptr;
+        Node* cur = head_;
+        Node* next = nullptr;
+        while (cur) {
+            next = cur->next;
+            if (tail) {
+                cur->next = tail;
+                tail = cur;
+            } else {
+                tail = cur;
+                tail->next = nullptr;
+            }
+
+            cur = next;
+        }
+
+        head_ = tail;
+    }
+
    private:
     void ThrowOutOfRange() const {
         throw std::out_of_range("index out of range");

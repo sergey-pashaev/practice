@@ -129,3 +129,47 @@ TEST_CASE("list remove", "[linked_list][template]") {
 
     l.Remove(0);
 }
+
+TEST_CASE("list remove value", "[linked_list][template]") {
+    typedef int T;
+
+    LinkedList<T> l;
+
+    l.PushBack(0);
+    l.PushBack(1);
+    l.PushBack(1);
+    l.PushBack(2);
+    l.PushBack(3);
+
+    l.RemoveValue(2);
+    REQUIRE(l.At(2) == 1);
+    REQUIRE(l.At(3) == 3);
+
+    l.RemoveValue(1);
+    REQUIRE(l.At(0) == 0);
+    REQUIRE(l.At(1) == 1);
+
+    l.RemoveValue(1);
+    l.RemoveValue(3);
+    REQUIRE(l.At(0) == 0);
+    REQUIRE(l.Size() == 1);
+
+    l.RemoveValue(0);
+    REQUIRE(l.Size() == 0);
+}
+
+TEST_CASE("list reverse", "[linked_list][template]") {
+    typedef int T;
+
+    LinkedList<T> l;
+
+    l.PushBack(1);
+    l.PushBack(2);
+    l.PushBack(3);
+
+    l.Reverse();
+
+    REQUIRE(l.At(0) == 3);
+    REQUIRE(l.At(1) == 2);
+    REQUIRE(l.At(2) == 1);
+}
