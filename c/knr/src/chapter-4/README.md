@@ -1,7 +1,7 @@
 # Chapter 4: Functions and Program Structure
 
 - [x] [Exercise 4-1](./ex.4.1.c)
-- [ ] Exercise 4-2
+- [x] [Exercise 4-2](./ex.4.2.c)
 - [ ] Exercise 4-3
 - [ ] Exercise 4-4
 - [ ] Exercise 4-5
