@@ -25,6 +25,7 @@ function(ex)
   cmake_parse_arguments(EX "" "${args}" "${lists}" ${ARGN})
   set(name "ex.${EX_NUMBER}")
   add_executable("${name}" "${EX_FILES}")
+  target_link_libraries("${name}" m)
 endfunction()
 
 function(resource FILE)
