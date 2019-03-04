@@ -7,3 +7,8 @@ add_test(NAME heapsort COMMAND heapsort)
 add_executable(mergesort mergesort.cpp)
 target_link_libraries(mergesort catch2)
 add_test(NAME mergesort COMMAND mergesort)
+
+add_executable(bubblesort bubblesort.cpp)
+target_link_libraries(bubblesort catch2)
+add_test(NAME bubblesort COMMAND bubblesort)
+
