@@ -2,6 +2,8 @@
 #define UTILS_H
 
 #include <algorithm>
+#include <chrono>
+#include <iostream>
 #include <random>
 #include <vector>
 
@@ -19,7 +21,15 @@ bool is_sorted(std::size_t size, Func f) {
         v.emplace_back(dist(gen));
     }
 
+    using clock = std::chrono::steady_clock;
+    clock::time_point start = clock::now();
+
     f(v);
+
+    clock::time_point end = clock::now();
+    auto ms =
+        std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+    std::cout << "n = " << size << ' ' << ms.count() << "ms\n";
 
     return std::is_sorted(v.begin(), v.end());
 }
