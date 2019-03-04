@@ -2,7 +2,6 @@
 #define HEAPSORT_H
 
 #include <math.h>
-#include <array>
 #include <stdexcept>
 #include <vector>
 
