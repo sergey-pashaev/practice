@@ -57,6 +57,11 @@ void mergesort(std::vector<T>& v, int lo, int hi) {
     }
 }
 
+template <typename T>
+void mergesort(std::vector<T>& v) {
+    mergesort(v, 0, v.size() - 1);
+}
+
 }  // namespace psv
 
 #endif /* MERGESORT_H */
