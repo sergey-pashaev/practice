@@ -1,8 +1,6 @@
 #include <catch.hpp>
 
-#include <algorithm>
-#include <iostream>
-#include <random>
+#include <vector>
 
 #include "heapsort.h"
 #include "utils.h"

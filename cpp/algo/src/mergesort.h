@@ -3,8 +3,6 @@
 
 #include <vector>
 
-#include <iostream>
-
 namespace psv {
 
 template <typename T>

@@ -1,7 +1,5 @@
 #include <catch.hpp>
 
-#include <algorithm>
-#include <random>
 #include <vector>
 
 #include "bubblesort.h"
