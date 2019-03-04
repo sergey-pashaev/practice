@@ -11,6 +11,7 @@ void bubblesort(std::vector<T>& v) {
 
     const std::size_t size = v.size();
     for (std::size_t i = 0; i < size - 1; ++i) {
+        // compare each pare and swap if needed
         for (std::size_t j = i; j < size; ++j) {
             if (v[i] > v[j]) std::swap(v[i], v[j]);
         }

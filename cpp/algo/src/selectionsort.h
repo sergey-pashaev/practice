@@ -11,6 +11,7 @@ void selectionsort(std::vector<T>& v) {
 
     const std::size_t size = v.size();
     for (std::size_t i = 0; i < size - 1; ++i) {
+        // find minimum value in (i, size] range
         std::size_t min = i;
         for (std::size_t j = i; j < size; ++j) {
             if (v[j] < v[min]) {
@@ -18,6 +19,7 @@ void selectionsort(std::vector<T>& v) {
             }
         }
 
+        // swap min with i-th element if needed
         if (min != i) {
             std::swap(v[i], v[min]);
         }
