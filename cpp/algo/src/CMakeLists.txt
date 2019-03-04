@@ -12,3 +12,6 @@ add_executable(bubblesort bubblesort.cpp)
 target_link_libraries(bubblesort catch2)
 add_test(NAME bubblesort COMMAND bubblesort)
 
+add_executable(selectionsort selectionsort.cpp)
+target_link_libraries(selectionsort catch2)
+add_test(NAME selectionsort COMMAND selectionsort)
