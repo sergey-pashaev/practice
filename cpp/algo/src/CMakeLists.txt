@@ -19,3 +19,5 @@ add_test(NAME selectionsort COMMAND selectionsort)
 add_executable(quicksort quicksort.cpp)
 target_link_libraries(quicksort catch2)
 add_test(NAME quicksort COMMAND quicksort)
+
+add_executable(loggable loggable.cpp)
