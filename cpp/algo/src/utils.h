@@ -15,23 +15,31 @@ bool is_sorted(std::size_t size, Func f) {
 
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<int> dist(1, 100);
+    std::uniform_int_distribution<int> dist(1, 1000);
 
-    for (std::size_t i = 0; i < size; ++i) {
-        v.emplace_back(dist(gen));
+    std::chrono::milliseconds sum{0};
+    const int runs = 20;
+    for (int run = 0; run < runs; ++run) {
+        for (std::size_t i = 0; i < size; ++i) {
+            v.emplace_back(dist(gen));
+        }
+
+        using clock = std::chrono::steady_clock;
+        clock::time_point start = clock::now();
+
+        f(v);
+
+        clock::time_point end = clock::now();
+
+        if (!std::is_sorted(v.begin(), v.end())) {
+            return false;
+        }
+
+        sum +=
+            std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
     }
-
-    using clock = std::chrono::steady_clock;
-    clock::time_point start = clock::now();
-
-    f(v);
-
-    clock::time_point end = clock::now();
-    auto ms =
-        std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-    std::cout << "n = " << size << ' ' << ms.count() << "ms\n";
-
-    return std::is_sorted(v.begin(), v.end());
+    std::cout << "n = " << size << ' ' << (sum / runs).count() << "ms avg\n";
+    return true;
 }
 
 }  // namespace psv
