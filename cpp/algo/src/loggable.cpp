@@ -1,27 +1,50 @@
 
-#include <functional>
+#include <algorithm>
 #include <iostream>
 #include <string>
+#include <vector>
 
 template <typename T>
 class Loggable {
    public:
-    typedef std::function<void(const std::string&)> Callback;
+    virtual ~Loggable() = default;
 
-    static void Register(const Callback& cb) { cb_ = cb; }
+    typedef void (*Callback)(const std::string&);
+    // #include <functional>
+    // typedef std::function<void(const std::string&)> Callback;
 
-    static void LogMessage(const std::string& msg) { cb_(msg); }
+    static void Register(const Callback& cb) {
+        if (cb) {
+            cb_.push_back(cb);
+        }
+    }
+
+    static void Remove(const Callback& cb) {
+        cb_.erase(std::remove(std::begin(cb_), std::end(cb_), cb),
+                  std::end(cb_));
+
+        if (cb_.empty()) {
+            cb_.push_back(Default);
+        }
+    }
+
+    static void LogMessage(const std::string& msg) {
+        for (const auto& f : cb_) {
+            f(msg);
+        }
+    }
 
    private:
     static void Default(const std::string& msg) {
         std::cout << "default: " << msg << '\n';
     }
 
-    static Callback cb_;
+    static std::vector<Callback> cb_;
 };
 
 template <typename T>
-typename Loggable<T>::Callback Loggable<T>::cb_ = Loggable<T>::Default;
+typename std::vector<typename Loggable<T>::Callback> Loggable<T>::cb_ = {
+    Loggable<T>::Default};
 
 struct Bar : public Loggable<Bar> {
     Bar() { LogMessage("bar"); }
@@ -45,6 +68,9 @@ struct Baz : public Loggable<Baz> {
 
 int main() {
     Loggable<Foo>::Register(Foo::LogCallback);
+    Loggable<Foo>::Register(Foo::LogCallback);
+    Loggable<Foo>::Register(nullptr);
+    Loggable<Foo>::Remove(Foo::LogCallback);
     Loggable<Bar>::Register(Bar::LogCallback);
     Foo f;
     Bar b;
@@ -53,5 +79,6 @@ int main() {
         Bar b;
         Baz z;
     }
+
     return 0;
 }
