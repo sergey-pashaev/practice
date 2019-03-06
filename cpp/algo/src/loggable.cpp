@@ -1,9 +1,15 @@
+// Hi, guys. I'm working for some library code right now and I need
+// logging capabilities inside different components and I want to
+// avoid uneccessary dependencies and make it flexible, so different
+// types might have different log functions. I came up with this
+// design, could you tell any drawbacks/cons?
 
 #include <algorithm>
 #include <iostream>
 #include <string>
 #include <vector>
 
+/// Loggable
 template <typename T>
 class Loggable {
    public:
@@ -13,24 +19,25 @@ class Loggable {
     // #include <functional>
     // typedef std::function<void(const std::string&)> Callback;
 
-    static void Register(const Callback& cb) {
+    static void RegisterCallback(const Callback& cb) {
         if (cb) {
-            cb_.push_back(cb);
+            callbacks_.push_back(cb);
         }
     }
 
     static void Remove(const Callback& cb) {
-        cb_.erase(std::remove(std::begin(cb_), std::end(cb_), cb),
-                  std::end(cb_));
+        callbacks_.erase(
+            std::remove(std::begin(callbacks_), std::end(callbacks_), cb),
+            std::end(callbacks_));
 
-        if (cb_.empty()) {
-            cb_.push_back(Default);
+        if (callbacks_.empty()) {
+            callbacks_.push_back(Default);
         }
     }
 
     static void LogMessage(const std::string& msg) {
-        for (const auto& f : cb_) {
-            f(msg);
+        for (const auto& cb : callbacks_) {
+            cb(msg);
         }
     }
 
@@ -39,46 +46,56 @@ class Loggable {
         std::cout << "default: " << msg << '\n';
     }
 
-    static std::vector<Callback> cb_;
+    static std::vector<Callback> callbacks_;
 };
 
 template <typename T>
-typename std::vector<typename Loggable<T>::Callback> Loggable<T>::cb_ = {
+typename std::vector<typename Loggable<T>::Callback> Loggable<T>::callbacks_ = {
     Loggable<T>::Default};
 
+/// Loggable users
 struct Bar : public Loggable<Bar> {
-    Bar() { LogMessage("bar"); }
+    Bar() { LogMessage("bar mesasge"); }
 
     static void LogCallback(const std::string& msg) {
-        std::cout << "bar custom: " << msg << '\n';
+        std::cout << "bar: " << msg << '\n';
     }
 };
 
 struct Foo : public Loggable<Foo> {
-    Foo() { LogMessage("foo"); }
+    Foo() { LogMessage("foo message"); }
 
     static void LogCallback(const std::string& msg) {
-        std::cout << "foo custom: " << msg << '\n';
+        std::cout << "foo: " << msg << '\n';
     }
 };
 
 struct Baz : public Loggable<Baz> {
-    Baz() { LogMessage("baz"); }
+    Baz() { LogMessage("baz message"); }
 };
 
+/// main
 int main() {
-    Loggable<Foo>::Register(Foo::LogCallback);
-    Loggable<Foo>::Register(Foo::LogCallback);
-    Loggable<Foo>::Register(nullptr);
+    Loggable<Foo>::RegisterCallback(Foo::LogCallback);
+    Loggable<Foo>::RegisterCallback(nullptr);
+    Loggable<Bar>::RegisterCallback(Bar::LogCallback);
+    Foo f1;
+    Bar b1;
+    Baz z1;
+
     Loggable<Foo>::Remove(Foo::LogCallback);
-    Loggable<Bar>::Register(Bar::LogCallback);
-    Foo f;
-    Bar b;
-    {
-        Foo f;
-        Bar b;
-        Baz z;
-    }
+    Foo f2;
+    Bar b2;
 
     return 0;
 }
+
+// $ ./loggable
+// default: foo
+// foo custom: foo
+// default: bar
+// bar custom: bar
+// default: foo
+// default: bar
+// bar custom: bar
+// default: baz
