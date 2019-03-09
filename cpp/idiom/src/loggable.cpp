@@ -1,9 +1,3 @@
-// Hi, guys. I'm working for some library code right now and I need
-// logging capabilities inside different components and I want to
-// avoid uneccessary dependencies and make it flexible, so different
-// types might have different log functions. I came up with this
-// design, could you tell any drawbacks/cons?
-
 #include <algorithm>
 #include <iostream>
 #include <string>

@@ -23,5 +23,3 @@ add_test(NAME quicksort COMMAND quicksort)
 add_executable(insertionsort insertionsort.cpp)
 target_link_libraries(insertionsort catch2)
 add_test(NAME insertionsort COMMAND insertionsort)
-
-add_executable(loggable loggable.cpp)
