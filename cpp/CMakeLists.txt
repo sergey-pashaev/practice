@@ -11,7 +11,8 @@ add_definitions(-Wall)
 add_definitions(-Wextra)
 
 include_directories(thirdparty)
+add_subdirectory(thirdparty)
 
 add_subdirectory(algo)
 add_subdirectory(ciu)
-add_subdirectory(thirdparty)
+add_subdirectory(grok)
