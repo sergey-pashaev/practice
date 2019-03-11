@@ -11,3 +11,7 @@ add_test(NAME bfs COMMAND bfs)
 add_executable(dijkstra dijkstra.cpp)
 target_link_libraries(dijkstra catch2)
 add_test(NAME dijkstra COMMAND dijkstra)
+
+add_executable(set_cover_greedy set_cover_greedy.cpp)
+target_link_libraries(set_cover_greedy catch2)
+add_test(NAME set_cover_greedy COMMAND set_cover_greedy)
