@@ -15,3 +15,7 @@ add_test(NAME dijkstra COMMAND dijkstra)
 add_executable(set_cover_greedy set_cover_greedy.cpp)
 target_link_libraries(set_cover_greedy catch2)
 add_test(NAME set_cover_greedy COMMAND set_cover_greedy)
+
+add_executable(knapsack knapsack.cpp)
+target_link_libraries(knapsack catch2)
+add_test(NAME knapsack COMMAND knapsack)
