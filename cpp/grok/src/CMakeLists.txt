@@ -7,3 +7,7 @@ add_test(NAME binary_search COMMAND binary_search)
 add_executable(bfs bfs.cpp)
 target_link_libraries(bfs catch2)
 add_test(NAME bfs COMMAND bfs)
+
+add_executable(dijkstra dijkstra.cpp)
+target_link_libraries(dijkstra catch2)
+add_test(NAME dijkstra COMMAND dijkstra)
