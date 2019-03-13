@@ -3,7 +3,7 @@
 #include <vector>
 
 template <typename T>
-int binary_search(std::vector<T>& v, int lo, int hi, T x) {
+int binary_search_iterative(std::vector<T>& v, int lo, int hi, T x) {
     int mid;
     while (hi >= lo) {
         mid = lo + (hi - lo) / 2;
@@ -20,8 +20,24 @@ int binary_search(std::vector<T>& v, int lo, int hi, T x) {
 }
 
 template <typename T>
+int binary_search_recursive(std::vector<T>& v, int lo, int hi, T x) {
+    while (hi >= lo) {
+        int mid = lo + (hi - lo) / 2;
+        if (x < v[mid]) {
+            return binary_search_recursive(v, lo, mid - 1, x);
+        } else if (x > v[mid]) {
+            return binary_search_recursive(v, mid + 1, hi, x);
+        } else {
+            return mid;
+        }
+    }
+
+    return -1;
+}
+
+template <typename T>
 int binary_search(std::vector<T>& v, T x) {
-    return binary_search(v, 0, v.size() - 1, x);
+    return binary_search_iterative(v, 0, v.size() - 1, x);
 }
 
 TEST_CASE("binary search") {
