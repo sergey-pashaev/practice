@@ -4,9 +4,10 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 include(CTest)
 
-add_definitions(-std=c++11)
-add_definitions(-O3)
-add_definitions(-ggdb3)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 add_definitions(-Wall)
 add_definitions(-Wextra)
 
