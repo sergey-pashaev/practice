@@ -9,13 +9,15 @@
 #include <unistd.h>
 
 /* declarations */
+struct abuf_t;
+
 void init_editor();
 void editor_draw_rows();
 void editor_process_keypress();
 void editor_refresh_screen();
+void editor_clear_screen(struct abuf_t*);
 void clear_screen();
 char editor_read_key();
-void clear_screen();
 void die(const char* msg);
 int get_window_size(int* rows, int* cols);
 int get_cursor_position(int* row, int* col);
@@ -154,21 +156,42 @@ void editor_process_keypress() {
 
 /* output */
 
-void editor_draw_rows() {
+void editor_draw_rows(struct abuf_t* ab) {
     for (int y = 0; y < g_config.screen_rows; ++y) {
-        write(STDIN_FILENO, "~", 1);
+        abuf_append(ab, "~", 1);
 
         if (y < g_config.screen_rows - 1) {
-            write(STDIN_FILENO, "\r\n", 2);
+            abuf_append(ab, "\r\n", 2);
         }
     }
 }
 
 void editor_refresh_screen() {
-    clear_screen();
-    editor_draw_rows();
+    struct abuf_t ab = ABUF_INIT;
+    clear_screen(&ab);
+
+    /* hide cursore */
+    abuf_append(&ab, "\x1b[?25l", 6);
+
+    editor_draw_rows(&ab);
     /* position cursor at first row & column */
-    write(STDOUT_FILENO, "\x1b[1;1H", 6);
+    abuf_append(&ab, "\x1b[1;1H", 6);
+    /* reveal cursor */
+    abuf_append(&ab, "\x1b[?25h", 6);
+
+    write(STDOUT_FILENO, ab.b, ab.len);
+    abuf_free(&ab);
+}
+
+void editor_clear_screen(struct abuf_t* ab) {
+    /* \x1b[ = 27 + [ = escape sequence */
+    /* J = erase in display */
+    /* 2 = argument for erase command */
+    /* https://vt100.net/docs/vt100-ug/chapter3.html#ED */
+    abuf_append(ab, "\x1b[2J", 4);
+
+    /* position cursor at first row & column */
+    abuf_append(ab, "\x1b[1;1H", 6);
 }
 
 void clear_screen() {
@@ -176,7 +199,7 @@ void clear_screen() {
     /* J = erase in display */
     /* 2 = argument for erase command */
     /* https://vt100.net/docs/vt100-ug/chapter3.html#ED */
-    write(STDIN_FILENO, "\x1b[2J", 4);
+    write(STDOUT_FILENO, "\x1b[2J", 4);
 
     /* position cursor at first row & column */
     write(STDOUT_FILENO, "\x1b[1;1H", 6);
