@@ -3,6 +3,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/ioctl.h>
 #include <termios.h>
 #include <unistd.h>
@@ -39,6 +40,26 @@ void die(const char* msg) {
     perror(msg);
     exit(1);
 }
+
+/* append buffer */
+struct abuf_t {
+    char* b;
+    int len;
+};
+
+#define ABUF_INIT \
+    { NULL, 0 }
+
+void abuf_append(struct abuf_t* abuf, const char* s, int len) {
+    char* new = realloc(abuf->b, abuf->len + len);
+    if (new == NULL) return;
+
+    memcpy(&new[abuf->len], s, len);
+    abuf->b = new;
+    abuf->len += len;
+}
+
+void abuf_free(struct abuf_t* abuf) { free(abuf->b); }
 
 /* terminal */
 int get_window_size(int* rows, int* cols) {
