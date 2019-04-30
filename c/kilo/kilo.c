@@ -10,7 +10,11 @@
 #define CTRL_KEY(k) ((k)&0x1f)
 
 /* globals */
-struct termios orig_termios;
+struct editor_config_t {
+    struct termios orig_termios;
+};
+
+struct editor_config_t g_config;
 
 void clear_screen();
 
@@ -22,14 +26,15 @@ void die(const char* msg) {
 
 /* terminal */
 void disable_raw_mode() {
-    if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_termios) < 0) die("tcsetattr");
+    if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &g_config.orig_termios) < 0)
+        die("tcsetattr");
 }
 
 void enable_raw_mode() {
-    if (tcgetattr(STDIN_FILENO, &orig_termios) < 0) die("tcgetattr");
+    if (tcgetattr(STDIN_FILENO, &g_config.orig_termios) < 0) die("tcgetattr");
     atexit(disable_raw_mode);
 
-    struct termios raw = orig_termios;
+    struct termios raw = g_config.orig_termios;
     /* local flags */
     raw.c_lflag &= ~(ECHO);   /* disable echoing of input */
     raw.c_lflag &= ~(ICANON); /* disable canonical mode - enable raw mode */
