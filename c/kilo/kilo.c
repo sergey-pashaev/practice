@@ -7,6 +7,20 @@
 #include <termios.h>
 #include <unistd.h>
 
+/* declarations */
+void init_editor();
+void editor_draw_rows();
+void editor_process_keypress();
+void editor_refresh_screen();
+void clear_screen();
+char editor_read_key();
+void clear_screen();
+void die(const char* msg);
+int get_window_size(int* rows, int* cols);
+int get_cursor_position(int* row, int* col);
+void disable_raw_mode();
+void enable_raw_mode();
+
 /* defines */
 #define CTRL_KEY(k) ((k)&0x1f)
 
@@ -18,8 +32,6 @@ struct editor_config_t {
 };
 
 struct editor_config_t g_config;
-
-void clear_screen();
 
 void die(const char* msg) {
     clear_screen();
