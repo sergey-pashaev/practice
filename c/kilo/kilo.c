@@ -135,7 +135,11 @@ void editor_process_keypress() {
 
 void editor_draw_rows() {
     for (int y = 0; y < g_config.screen_rows; ++y) {
-        write(STDIN_FILENO, "~\r\n", 3);
+        write(STDIN_FILENO, "~", 1);
+
+        if (y < g_config.screen_rows - 1) {
+            write(STDIN_FILENO, "\r\n", 2);
+        }
     }
 }
 
