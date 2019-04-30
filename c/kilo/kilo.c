@@ -3,6 +3,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/ioctl.h>
 #include <termios.h>
 #include <unistd.h>
 
@@ -11,6 +12,8 @@
 
 /* globals */
 struct editor_config_t {
+    int screen_rows;
+    int screen_cols;
     struct termios orig_termios;
 };
 
@@ -25,6 +28,17 @@ void die(const char* msg) {
 }
 
 /* terminal */
+int get_window_size(int* rows, int* cols) {
+    struct winsize ws;
+    if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == -1 || ws.ws_col == 0) {
+        return -1;
+    }
+
+    *rows = ws.ws_row;
+    *cols = ws.ws_col;
+    return 0;
+}
+
 void disable_raw_mode() {
     if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &g_config.orig_termios) < 0)
         die("tcsetattr");
@@ -86,7 +100,7 @@ void editor_process_keypress() {
 /* output */
 
 void editor_draw_rows() {
-    for (int y = 0; y < 24; ++y) {
+    for (int y = 0; y < g_config.screen_rows; ++y) {
         write(STDIN_FILENO, "~\r\n", 3);
     }
 }
@@ -109,8 +123,14 @@ void clear_screen() {
     write(STDOUT_FILENO, "\x1b[1;1H", 6);
 }
 
+void init_editor() {
+    if (get_window_size(&g_config.screen_rows, &g_config.screen_cols) == -1)
+        die("get_window_size");
+}
+
 int main(int argc, char* argv[]) {
     enable_raw_mode();
+    init_editor();
 
     while (1) {
         editor_refresh_screen();
