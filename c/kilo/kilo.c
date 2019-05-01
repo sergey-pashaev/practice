@@ -12,10 +12,10 @@
 struct abuf_t;
 
 void init_editor();
+void editor_move_cursor(char key);
 void editor_draw_rows();
 void editor_process_keypress();
 void editor_refresh_screen();
-void editor_clear_screen(struct abuf_t*);
 void clear_screen();
 char editor_read_key();
 void die(const char* msg);
@@ -27,9 +27,12 @@ void enable_raw_mode();
 /* defines */
 #define CTRL_KEY(k) ((k)&0x1f)
 #define TRAILING_ZERO 1
+#define KILO_VERSION "0.0.1"
 
 /* globals */
 struct editor_config_t {
+    int cursor_x;
+    int cursor_y;
     int screen_rows;
     int screen_cols;
     struct termios orig_termios;
@@ -149,6 +152,36 @@ void editor_process_keypress() {
             exit(0);
             break;
         }
+        case 'w':
+        case 'a':
+        case 's':
+        case 'd': {
+            editor_move_cursor(c);
+            break;
+        }
+        default:
+            break;
+    }
+}
+
+void editor_move_cursor(char key) {
+    switch (key) {
+        case 'a': {
+            g_config.cursor_x--;
+            break;
+        }
+        case 'd': {
+            g_config.cursor_x++;
+            break;
+        }
+        case 'w': {
+            g_config.cursor_y--;
+            break;
+        }
+        case 's': {
+            g_config.cursor_y++;
+            break;
+        }
         default:
             break;
     }
@@ -158,8 +191,25 @@ void editor_process_keypress() {
 
 void editor_draw_rows(struct abuf_t* ab) {
     for (int y = 0; y < g_config.screen_rows; ++y) {
-        abuf_append(ab, "~", 1);
+        if (y == g_config.screen_rows / 3) {
+            char welcome[80];
+            int len = snprintf(welcome, sizeof(welcome),
+                               "Kilo editor -- version %s", KILO_VERSION);
+            if (len > g_config.screen_cols) {
+                len = g_config.screen_cols;
+            }
+            int padding = (g_config.screen_cols - len) / 2;
+            if (padding) {
+                abuf_append(ab, "~", 1);
+                --padding;
+            }
+            while (padding--) abuf_append(ab, " ", 1);
+            abuf_append(ab, welcome, len);
+        } else {
+            abuf_append(ab, "~", 1);
+        }
 
+        abuf_append(ab, "\x1b[K", 3);
         if (y < g_config.screen_rows - 1) {
             abuf_append(ab, "\r\n", 2);
         }
@@ -168,30 +218,25 @@ void editor_draw_rows(struct abuf_t* ab) {
 
 void editor_refresh_screen() {
     struct abuf_t ab = ABUF_INIT;
-    clear_screen(&ab);
 
     /* hide cursore */
     abuf_append(&ab, "\x1b[?25l", 6);
 
+    abuf_append(&ab, "\x1b[H", 3);
+
     editor_draw_rows(&ab);
-    /* position cursor at first row & column */
-    abuf_append(&ab, "\x1b[1;1H", 6);
+
+    /* position cursor */
+    char buf[32];
+    snprintf(buf, sizeof(buf), "\x1b[%d;%dH", g_config.cursor_y + 1,
+             g_config.cursor_x + 1);
+    abuf_append(&ab, buf, strlen(buf));
+
     /* reveal cursor */
     abuf_append(&ab, "\x1b[?25h", 6);
 
     write(STDOUT_FILENO, ab.b, ab.len);
     abuf_free(&ab);
-}
-
-void editor_clear_screen(struct abuf_t* ab) {
-    /* \x1b[ = 27 + [ = escape sequence */
-    /* J = erase in display */
-    /* 2 = argument for erase command */
-    /* https://vt100.net/docs/vt100-ug/chapter3.html#ED */
-    abuf_append(ab, "\x1b[2J", 4);
-
-    /* position cursor at first row & column */
-    abuf_append(ab, "\x1b[1;1H", 6);
 }
 
 void clear_screen() {
@@ -202,10 +247,13 @@ void clear_screen() {
     write(STDOUT_FILENO, "\x1b[2J", 4);
 
     /* position cursor at first row & column */
-    write(STDOUT_FILENO, "\x1b[1;1H", 6);
+    write(STDOUT_FILENO, "\x1b[H", 3);
 }
 
 void init_editor() {
+    g_config.cursor_x = 0;
+    g_config.cursor_y = 0;
+
     if (get_window_size(&g_config.screen_rows, &g_config.screen_cols) == -1)
         die("get_window_size");
 }
