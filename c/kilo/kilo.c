@@ -36,6 +36,8 @@ enum editor_key_t {
     ARROW_DOWN,
     PAGE_UP,
     PAGE_DOWN,
+    HOME_KEY,
+    END_KEY,
 };
 
 /* globals */
@@ -161,10 +163,18 @@ int editor_read_key() {
                 if (read(STDIN_FILENO, &seq[2], 1) != 1) return '\x1b';
                 if (seq[2] == '~') {
                     switch (seq[1]) {
+                        case '1':
+                            return HOME_KEY;
+                        case '4':
+                            return END_KEY;
                         case '5':
                             return PAGE_UP;
                         case '6':
                             return PAGE_DOWN;
+                        case '7':
+                            return HOME_KEY;
+                        case '8':
+                            return END_KEY;
                     }
                 }
             } else {
@@ -177,7 +187,18 @@ int editor_read_key() {
                         return ARROW_RIGHT;
                     case 'D':
                         return ARROW_LEFT;
+                    case 'H':
+                        return HOME_KEY;
+                    case 'F':
+                        return END_KEY;
                 }
+            }
+        } else if (seq[0] == 'O') {
+            switch (seq[1]) {
+                case 'H':
+                    return HOME_KEY;
+                case 'F':
+                    return END_KEY;
             }
         }
 
@@ -208,6 +229,14 @@ void editor_process_keypress() {
             int times = g_config.screen_rows;
             while (times--)
                 editor_move_cursor(c == PAGE_UP ? ARROW_UP : ARROW_DOWN);
+            break;
+        }
+        case HOME_KEY: {
+            g_config.cursor_x = 0;
+            break;
+        }
+        case END_KEY: {
+            g_config.cursor_x = g_config.screen_cols - 1;
             break;
         }
         default:
