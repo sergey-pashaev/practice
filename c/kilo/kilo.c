@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/ioctl.h>
+#include <sys/types.h>
 #include <termios.h>
 #include <unistd.h>
 
@@ -12,6 +13,7 @@
 struct abuf_t;
 
 void init_editor();
+void editor_open();
 void editor_move_cursor(int key);
 void editor_draw_rows();
 void editor_process_keypress();
@@ -42,11 +44,18 @@ enum editor_key_t {
 };
 
 /* globals */
+struct editor_row_t {
+    int size;
+    char* chars;
+} erow;
+
 struct editor_config_t {
     int cursor_x;
     int cursor_y;
     int screen_rows;
     int screen_cols;
+    int numrows;
+    struct editor_row_t row;
     struct termios orig_termios;
 };
 
@@ -109,6 +118,18 @@ int get_cursor_position(int* row, int* col) {
     if (sscanf(&buf[2], "%d;%d", row, col) != 2) return -1;
 
     return 0;
+}
+
+/* file io */
+void editor_open() {
+    char* line = "hello world";
+    ssize_t len = sizeof("hello world");
+
+    g_config.row.size = len;
+    g_config.row.chars = malloc(len + 1);
+    memcpy(g_config.row.chars, line, len);
+    g_config.row.chars[len] = '\0';
+    g_config.numrows = 1;
 }
 
 void disable_raw_mode() {
@@ -276,22 +297,28 @@ void editor_move_cursor(int key) {
 
 void editor_draw_rows(struct abuf_t* ab) {
     for (int y = 0; y < g_config.screen_rows; ++y) {
-        if (y == g_config.screen_rows / 3) {
-            char welcome[80];
-            int len = snprintf(welcome, sizeof(welcome),
-                               "Kilo editor -- version %s", KILO_VERSION);
-            if (len > g_config.screen_cols) {
-                len = g_config.screen_cols;
-            }
-            int padding = (g_config.screen_cols - len) / 2;
-            if (padding) {
+        if (y >= g_config.numrows) {
+            if (y == g_config.screen_rows / 3) {
+                char welcome[80];
+                int len = snprintf(welcome, sizeof(welcome),
+                                   "Kilo editor -- version %s", KILO_VERSION);
+                if (len > g_config.screen_cols) {
+                    len = g_config.screen_cols;
+                }
+                int padding = (g_config.screen_cols - len) / 2;
+                if (padding) {
+                    abuf_append(ab, "~", 1);
+                    --padding;
+                }
+                while (padding--) abuf_append(ab, " ", 1);
+                abuf_append(ab, welcome, len);
+            } else {
                 abuf_append(ab, "~", 1);
-                --padding;
             }
-            while (padding--) abuf_append(ab, " ", 1);
-            abuf_append(ab, welcome, len);
         } else {
-            abuf_append(ab, "~", 1);
+            int len = g_config.row.size;
+            if (len > g_config.screen_cols) len = g_config.screen_cols;
+            abuf_append(ab, g_config.row.chars, len);
         }
 
         abuf_append(ab, "\x1b[K", 3);
@@ -338,6 +365,7 @@ void clear_screen() {
 void init_editor() {
     g_config.cursor_x = 0;
     g_config.cursor_y = 0;
+    g_config.numrows = 0;
 
     if (get_window_size(&g_config.screen_rows, &g_config.screen_cols) == -1)
         die("get_window_size");
@@ -346,6 +374,7 @@ void init_editor() {
 int main(int argc, char* argv[]) {
     enable_raw_mode();
     init_editor();
+    editor_open();
 
     while (1) {
         editor_refresh_screen();
