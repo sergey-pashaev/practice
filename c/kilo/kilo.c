@@ -16,6 +16,7 @@
 struct abuf_t;
 
 void init_editor();
+void editor_scroll();
 void editor_append_row(char* s, size_t len);
 void editor_open();
 void editor_move_cursor(int key);
@@ -56,6 +57,7 @@ struct editor_row_t {
 struct editor_config_t {
     int cursor_x;
     int cursor_y;
+    int row_offset;
     int screen_rows;
     int screen_cols;
     int numrows;
@@ -122,6 +124,16 @@ int get_cursor_position(int* row, int* col) {
     if (sscanf(&buf[2], "%d;%d", row, col) != 2) return -1;
 
     return 0;
+}
+
+void editor_scroll() {
+    if (g_config.cursor_y < g_config.row_offset) {
+        g_config.row_offset = g_config.cursor_y;
+    }
+
+    if (g_config.cursor_y >= g_config.row_offset + g_config.screen_rows) {
+        g_config.row_offset = g_config.cursor_y - g_config.screen_rows + 1;
+    }
 }
 
 /* file io */
@@ -309,8 +321,7 @@ void editor_move_cursor(int key) {
             break;
         }
         case ARROW_DOWN: {
-            if (g_config.cursor_y != g_config.screen_rows - 1)
-                g_config.cursor_y++;
+            if (g_config.cursor_y < g_config.numrows) g_config.cursor_y++;
             break;
         }
         default:
@@ -322,7 +333,8 @@ void editor_move_cursor(int key) {
 
 void editor_draw_rows(struct abuf_t* ab) {
     for (int y = 0; y < g_config.screen_rows; ++y) {
-        if (y >= g_config.numrows) {
+        int filerow = y + g_config.row_offset;
+        if (filerow >= g_config.numrows) {
             if (g_config.numrows == 0 && y == g_config.screen_rows / 3) {
                 char welcome[80];
                 int len = snprintf(welcome, sizeof(welcome),
@@ -341,9 +353,9 @@ void editor_draw_rows(struct abuf_t* ab) {
                 abuf_append(ab, "~", 1);
             }
         } else {
-            int len = g_config.row[y].size;
+            int len = g_config.row[filerow].size;
             if (len > g_config.screen_cols) len = g_config.screen_cols;
-            abuf_append(ab, g_config.row[y].chars, len);
+            abuf_append(ab, g_config.row[filerow].chars, len);
         }
 
         abuf_append(ab, "\x1b[K", 3);
@@ -354,6 +366,8 @@ void editor_draw_rows(struct abuf_t* ab) {
 }
 
 void editor_refresh_screen() {
+    editor_scroll();
+
     struct abuf_t ab = ABUF_INIT;
 
     /* hide cursore */
@@ -392,6 +406,7 @@ void init_editor() {
     g_config.cursor_y = 0;
     g_config.numrows = 0;
     g_config.row = NULL;
+    g_config.row_offset = 0;
 
     if (get_window_size(&g_config.screen_rows, &g_config.screen_cols) == -1)
         die("get_window_size");
