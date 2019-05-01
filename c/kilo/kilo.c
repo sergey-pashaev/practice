@@ -12,12 +12,12 @@
 struct abuf_t;
 
 void init_editor();
-void editor_move_cursor(char key);
+void editor_move_cursor(int key);
 void editor_draw_rows();
 void editor_process_keypress();
 void editor_refresh_screen();
 void clear_screen();
-char editor_read_key();
+int editor_read_key();
 void die(const char* msg);
 int get_window_size(int* rows, int* cols);
 int get_cursor_position(int* row, int* col);
@@ -28,6 +28,13 @@ void enable_raw_mode();
 #define CTRL_KEY(k) ((k)&0x1f)
 #define TRAILING_ZERO 1
 #define KILO_VERSION "0.0.1"
+
+enum editor_key_t {
+    ARROW_LEFT = 1000,
+    ARROW_RIGHT,
+    ARROW_UP,
+    ARROW_DOWN,
+};
 
 /* globals */
 struct editor_config_t {
@@ -134,28 +141,51 @@ void enable_raw_mode() {
     if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw) < 0) die("tcsetattr");
 }
 
-char editor_read_key() {
+int editor_read_key() {
     int nread;
     char c;
     while ((nread = read(STDIN_FILENO, &c, 1)) != 1) {
         if (nread == -1 && errno != EAGAIN) die("read");
     }
-    return c;
+
+    if (c == '\x1b') {
+        char seq[3];
+
+        if (read(STDIN_FILENO, &seq[0], 1) != 1) return '\x1b';
+        if (read(STDIN_FILENO, &seq[1], 1) != 1) return '\x1b';
+
+        if (seq[0] == '[') {
+            switch (seq[1]) {
+                case 'A':
+                    return ARROW_UP;
+                case 'B':
+                    return ARROW_DOWN;
+                case 'C':
+                    return ARROW_RIGHT;
+                case 'D':
+                    return ARROW_LEFT;
+            }
+        }
+
+        return '\x1b';
+    } else {
+        return c;
+    }
 }
 
 /* input  */
 void editor_process_keypress() {
-    char c = editor_read_key();
+    int c = editor_read_key();
     switch (c) {
         case CTRL_KEY('q'): {
             clear_screen();
             exit(0);
             break;
         }
-        case 'w':
-        case 'a':
-        case 's':
-        case 'd': {
+        case ARROW_UP:
+        case ARROW_DOWN:
+        case ARROW_LEFT:
+        case ARROW_RIGHT: {
             editor_move_cursor(c);
             break;
         }
@@ -164,22 +194,24 @@ void editor_process_keypress() {
     }
 }
 
-void editor_move_cursor(char key) {
+void editor_move_cursor(int key) {
     switch (key) {
-        case 'a': {
-            g_config.cursor_x--;
+        case ARROW_LEFT: {
+            if (g_config.cursor_x != 0) g_config.cursor_x--;
             break;
         }
-        case 'd': {
-            g_config.cursor_x++;
+        case ARROW_RIGHT: {
+            if (g_config.cursor_x != g_config.screen_cols - 1)
+                g_config.cursor_x++;
             break;
         }
-        case 'w': {
-            g_config.cursor_y--;
+        case ARROW_UP: {
+            if (g_config.cursor_y != 0) g_config.cursor_y--;
             break;
         }
-        case 's': {
-            g_config.cursor_y++;
+        case ARROW_DOWN: {
+            if (g_config.cursor_y != g_config.screen_rows - 1)
+                g_config.cursor_y++;
             break;
         }
         default:
