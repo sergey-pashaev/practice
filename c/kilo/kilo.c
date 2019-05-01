@@ -9,10 +9,14 @@
 #include <termios.h>
 #include <unistd.h>
 
+#define _BSD_SOURCE
+#define _GNU_SOURCE
+
 /* declarations */
 struct abuf_t;
 
 void init_editor();
+void editor_append_row(char* s, size_t len);
 void editor_open();
 void editor_move_cursor(int key);
 void editor_draw_rows();
@@ -55,7 +59,7 @@ struct editor_config_t {
     int screen_rows;
     int screen_cols;
     int numrows;
-    struct editor_row_t row;
+    struct editor_row_t* row;
     struct termios orig_termios;
 };
 
@@ -121,15 +125,36 @@ int get_cursor_position(int* row, int* col) {
 }
 
 /* file io */
-void editor_open() {
-    char* line = "hello world";
-    ssize_t len = sizeof("hello world");
+void editor_append_row(char* s, size_t len) {
+    g_config.row = realloc(
+        g_config.row, sizeof(struct editor_row_t) * (g_config.numrows + 1));
 
-    g_config.row.size = len;
-    g_config.row.chars = malloc(len + 1);
-    memcpy(g_config.row.chars, line, len);
-    g_config.row.chars[len] = '\0';
-    g_config.numrows = 1;
+    int at = g_config.numrows;
+    g_config.row[at].size = len;
+    g_config.row[at].chars = malloc(len + 1);
+    memcpy(g_config.row[at].chars, s, len);
+    g_config.row[at].chars[len] = '\0';
+    g_config.numrows++;
+}
+
+void editor_open(char* filename) {
+    FILE* fp = fopen(filename, "r");
+    if (!fp) die("fopen");
+
+    char* line = NULL;
+    size_t linecap = 0;
+    ssize_t linelen;
+    while ((linelen = getline(&line, &linecap, fp)) != -1) {
+        while (linelen > 0 &&
+               (line[linelen - 1] == '\n' || line[linelen - 1] == '\r')) {
+            linelen--;
+        }
+
+        editor_append_row(line, linelen);
+    }
+
+    free(line);
+    fclose(fp);
 }
 
 void disable_raw_mode() {
@@ -298,7 +323,7 @@ void editor_move_cursor(int key) {
 void editor_draw_rows(struct abuf_t* ab) {
     for (int y = 0; y < g_config.screen_rows; ++y) {
         if (y >= g_config.numrows) {
-            if (y == g_config.screen_rows / 3) {
+            if (g_config.numrows == 0 && y == g_config.screen_rows / 3) {
                 char welcome[80];
                 int len = snprintf(welcome, sizeof(welcome),
                                    "Kilo editor -- version %s", KILO_VERSION);
@@ -316,9 +341,9 @@ void editor_draw_rows(struct abuf_t* ab) {
                 abuf_append(ab, "~", 1);
             }
         } else {
-            int len = g_config.row.size;
+            int len = g_config.row[y].size;
             if (len > g_config.screen_cols) len = g_config.screen_cols;
-            abuf_append(ab, g_config.row.chars, len);
+            abuf_append(ab, g_config.row[y].chars, len);
         }
 
         abuf_append(ab, "\x1b[K", 3);
@@ -366,6 +391,7 @@ void init_editor() {
     g_config.cursor_x = 0;
     g_config.cursor_y = 0;
     g_config.numrows = 0;
+    g_config.row = NULL;
 
     if (get_window_size(&g_config.screen_rows, &g_config.screen_cols) == -1)
         die("get_window_size");
@@ -374,7 +400,9 @@ void init_editor() {
 int main(int argc, char* argv[]) {
     enable_raw_mode();
     init_editor();
-    editor_open();
+    if (argc >= 2) {
+        editor_open(argv[1]);
+    }
 
     while (1) {
         editor_refresh_screen();
