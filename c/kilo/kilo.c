@@ -58,6 +58,7 @@ struct editor_config_t {
     int cursor_x;
     int cursor_y;
     int row_offset;
+    int col_offset;
     int screen_rows;
     int screen_cols;
     int numrows;
@@ -133,6 +134,14 @@ void editor_scroll() {
 
     if (g_config.cursor_y >= g_config.row_offset + g_config.screen_rows) {
         g_config.row_offset = g_config.cursor_y - g_config.screen_rows + 1;
+    }
+
+    if (g_config.cursor_x < g_config.col_offset) {
+        g_config.col_offset = g_config.cursor_x;
+    }
+
+    if (g_config.cursor_x >= g_config.col_offset + g_config.screen_cols) {
+        g_config.col_offset = g_config.cursor_x - g_config.screen_cols + 1;
     }
 }
 
@@ -306,14 +315,27 @@ void editor_process_keypress() {
 }
 
 void editor_move_cursor(int key) {
+    struct editor_row_t* row = (g_config.cursor_y >= g_config.numrows)
+                                   ? NULL
+                                   : &g_config.row[g_config.cursor_y];
+
     switch (key) {
         case ARROW_LEFT: {
-            if (g_config.cursor_x != 0) g_config.cursor_x--;
+            if (g_config.cursor_x != 0) {
+                g_config.cursor_x--;
+            } else if (g_config.cursor_y > 0) {
+                g_config.cursor_y--;
+                g_config.cursor_x = g_config.row[g_config.cursor_y].size;
+            }
             break;
         }
         case ARROW_RIGHT: {
-            if (g_config.cursor_x != g_config.screen_cols - 1)
+            if (row && g_config.cursor_x < row->size) {
                 g_config.cursor_x++;
+            } else if (row && g_config.cursor_x == row->size) {
+                g_config.cursor_y++;
+                g_config.cursor_x = 0;
+            }
             break;
         }
         case ARROW_UP: {
@@ -326,6 +348,14 @@ void editor_move_cursor(int key) {
         }
         default:
             break;
+    }
+
+    row = (g_config.cursor_y >= g_config.numrows)
+              ? NULL
+              : &g_config.row[g_config.cursor_y];
+    int rowlen = row ? row->size : 0;
+    if (g_config.cursor_x > rowlen) {
+        g_config.cursor_x = rowlen;
     }
 }
 
@@ -353,9 +383,11 @@ void editor_draw_rows(struct abuf_t* ab) {
                 abuf_append(ab, "~", 1);
             }
         } else {
-            int len = g_config.row[filerow].size;
+            int len = g_config.row[filerow].size - g_config.col_offset;
+            if (len < 0) len = 0;
             if (len > g_config.screen_cols) len = g_config.screen_cols;
-            abuf_append(ab, g_config.row[filerow].chars, len);
+            abuf_append(ab, &g_config.row[filerow].chars[g_config.col_offset],
+                        len);
         }
 
         abuf_append(ab, "\x1b[K", 3);
@@ -379,8 +411,9 @@ void editor_refresh_screen() {
 
     /* position cursor */
     char buf[32];
-    snprintf(buf, sizeof(buf), "\x1b[%d;%dH", g_config.cursor_y + 1,
-             g_config.cursor_x + 1);
+    snprintf(buf, sizeof(buf), "\x1b[%d;%dH",
+             g_config.cursor_y - g_config.row_offset + 1,
+             g_config.cursor_x - g_config.col_offset + 1);
     abuf_append(&ab, buf, strlen(buf));
 
     /* reveal cursor */
@@ -407,6 +440,7 @@ void init_editor() {
     g_config.numrows = 0;
     g_config.row = NULL;
     g_config.row_offset = 0;
+    g_config.col_offset = 0;
 
     if (get_window_size(&g_config.screen_rows, &g_config.screen_cols) == -1)
         die("get_window_size");
