@@ -1,6 +1,7 @@
 /* includes */
 #include <ctype.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -11,6 +12,7 @@
 #include <time.h>
 #include <unistd.h>
 
+#define _XOPEN_SOURCE = 500
 #define _BSD_SOURCE
 #define _GNU_SOURCE
 
@@ -19,7 +21,9 @@ struct abuf_t;
 struct editor_row_t;
 
 void init_editor();
+char* editor_rows_to_string(int* buflen);
 void editor_scroll();
+void editor_save();
 void editor_insert_char(int c);
 void editor_row_insert_char(struct editor_row_t* row, int at, int c);
 void editor_set_status_message(const char* fmt, ...);
@@ -143,6 +147,30 @@ int get_cursor_position(int* row, int* col) {
     if (sscanf(&buf[2], "%d;%d", row, col) != 2) return -1;
 
     return 0;
+}
+
+void editor_save() {
+    if (g_config.filename == NULL) return;
+
+    int len;
+    char* buf = editor_rows_to_string(&len);
+
+    int fd = open(g_config.filename, O_RDWR | O_CREAT, 0644);
+    if (fd != -1) {
+        if (ftruncate(fd, len) != -1) {
+            if (write(fd, buf, len) == len) {
+                close(fd);
+                free(buf);
+                editor_set_status_message("%d bytes written to disk", len);
+                return;
+            }
+        }
+
+        close(fd);
+    }
+
+    free(buf);
+    editor_set_status_message("Can't save! I/O error: %s", strerror(errno));
 }
 
 void editor_scroll() {
@@ -384,6 +412,10 @@ void editor_process_keypress() {
             exit(0);
             break;
         }
+        case CTRL_KEY('s'): {
+            editor_save();
+            break;
+        }
         case ARROW_UP:
         case ARROW_DOWN:
         case ARROW_LEFT:
@@ -595,6 +627,27 @@ void clear_screen() {
     write(STDOUT_FILENO, "\x1b[H", 3);
 }
 
+char* editor_rows_to_string(int* buflen) {
+    int totlen = 0;
+    int j;
+
+    for (j = 0; j < g_config.numrows; ++j) {
+        totlen += g_config.row[j].size + 1;
+    }
+    *buflen = totlen;
+
+    char* buf = malloc(totlen);
+    char* p = buf;
+    for (j = 0; j < g_config.numrows; ++j) {
+        memcpy(p, g_config.row[j].chars, g_config.row[j].size);
+        p += g_config.row[j].size;
+        *p = '\n';
+        p++;
+    }
+
+    return buf;
+}
+
 void init_editor() {
     g_config.cursor_x = 0;
     g_config.cursor_y = 0;
@@ -620,7 +673,7 @@ int main(int argc, char* argv[]) {
         editor_open(argv[1]);
     }
 
-    editor_set_status_message("HELP: Ctrl-Q = quit");
+    editor_set_status_message("HELP: Ctrl-Q = quit | Ctrl-S = save");
 
     while (1) {
         editor_refresh_screen();
