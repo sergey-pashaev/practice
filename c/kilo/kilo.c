@@ -14,9 +14,12 @@
 
 /* declarations */
 struct abuf_t;
+struct editor_row_t;
 
 void init_editor();
 void editor_scroll();
+int editor_row_cx_to_rx(struct editor_row_t* row, int cx);
+void editor_update_row(struct editor_row_t* row);
 void editor_append_row(char* s, size_t len);
 void editor_open();
 void editor_move_cursor(int key);
@@ -35,6 +38,7 @@ void enable_raw_mode();
 #define CTRL_KEY(k) ((k)&0x1f)
 #define TRAILING_ZERO 1
 #define KILO_VERSION "0.0.1"
+#define KILO_TAB_STOP 8
 
 enum editor_key_t {
     ARROW_LEFT = 1000,
@@ -51,12 +55,15 @@ enum editor_key_t {
 /* globals */
 struct editor_row_t {
     int size;
+    int rsize;
     char* chars;
+    char* render;
 } erow;
 
 struct editor_config_t {
     int cursor_x;
     int cursor_y;
+    int render_x;
     int row_offset;
     int col_offset;
     int screen_rows;
@@ -128,6 +135,12 @@ int get_cursor_position(int* row, int* col) {
 }
 
 void editor_scroll() {
+    g_config.render_x = 0;
+    if (g_config.cursor_y < g_config.numrows) {
+        g_config.render_x = editor_row_cx_to_rx(
+            &g_config.row[g_config.cursor_y], g_config.cursor_x);
+    }
+
     if (g_config.cursor_y < g_config.row_offset) {
         g_config.row_offset = g_config.cursor_y;
     }
@@ -136,16 +149,50 @@ void editor_scroll() {
         g_config.row_offset = g_config.cursor_y - g_config.screen_rows + 1;
     }
 
-    if (g_config.cursor_x < g_config.col_offset) {
-        g_config.col_offset = g_config.cursor_x;
+    if (g_config.render_x < g_config.col_offset) {
+        g_config.col_offset = g_config.render_x;
     }
 
-    if (g_config.cursor_x >= g_config.col_offset + g_config.screen_cols) {
-        g_config.col_offset = g_config.cursor_x - g_config.screen_cols + 1;
+    if (g_config.render_x >= g_config.col_offset + g_config.screen_cols) {
+        g_config.col_offset = g_config.render_x - g_config.screen_cols + 1;
     }
 }
 
 /* file io */
+int editor_row_cx_to_rx(struct editor_row_t* row, int cx) {
+    int rx = 0;
+    for (int j = 0; j < cx; ++j) {
+        if (row->chars[j] == '\t') {
+            rx += (KILO_TAB_STOP - 1) - (rx % KILO_TAB_STOP);
+        }
+        ++rx;
+    }
+
+    return rx;
+}
+
+void editor_update_row(struct editor_row_t* row) {
+    int tabs = 0;
+    for (int j = 0; j < row->size; ++j) {
+        if (row->chars[j] == '\t') ++tabs;
+    }
+
+    free(row->render);
+    row->render = malloc(row->size + tabs * (KILO_TAB_STOP - 1) + 1);
+
+    int idx = 0;
+    for (int j = 0; j < row->size; ++j) {
+        if (row->chars[j] == '\t') {
+            row->render[idx++] = ' ';
+            while (idx % KILO_TAB_STOP != 0) row->render[idx++] = ' ';
+        } else {
+            row->render[idx++] = row->chars[j];
+        }
+    }
+    row->render[idx] = '\0';
+    row->rsize = idx;
+}
+
 void editor_append_row(char* s, size_t len) {
     g_config.row = realloc(
         g_config.row, sizeof(struct editor_row_t) * (g_config.numrows + 1));
@@ -155,6 +202,12 @@ void editor_append_row(char* s, size_t len) {
     g_config.row[at].chars = malloc(len + 1);
     memcpy(g_config.row[at].chars, s, len);
     g_config.row[at].chars[len] = '\0';
+
+    g_config.row[at].rsize = 0;
+    g_config.row[at].render = NULL;
+
+    editor_update_row(&g_config.row[at]);
+
     g_config.numrows++;
 }
 
@@ -383,10 +436,10 @@ void editor_draw_rows(struct abuf_t* ab) {
                 abuf_append(ab, "~", 1);
             }
         } else {
-            int len = g_config.row[filerow].size - g_config.col_offset;
+            int len = g_config.row[filerow].rsize - g_config.col_offset;
             if (len < 0) len = 0;
             if (len > g_config.screen_cols) len = g_config.screen_cols;
-            abuf_append(ab, &g_config.row[filerow].chars[g_config.col_offset],
+            abuf_append(ab, &g_config.row[filerow].render[g_config.col_offset],
                         len);
         }
 
@@ -413,7 +466,7 @@ void editor_refresh_screen() {
     char buf[32];
     snprintf(buf, sizeof(buf), "\x1b[%d;%dH",
              g_config.cursor_y - g_config.row_offset + 1,
-             g_config.cursor_x - g_config.col_offset + 1);
+             g_config.render_x - g_config.col_offset + 1);
     abuf_append(&ab, buf, strlen(buf));
 
     /* reveal cursor */
@@ -437,6 +490,7 @@ void clear_screen() {
 void init_editor() {
     g_config.cursor_x = 0;
     g_config.cursor_y = 0;
+    g_config.render_x = 0;
     g_config.numrows = 0;
     g_config.row = NULL;
     g_config.row_offset = 0;
