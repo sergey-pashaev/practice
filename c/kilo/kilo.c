@@ -20,6 +20,8 @@ struct editor_row_t;
 
 void init_editor();
 void editor_scroll();
+void editor_insert_char(int c);
+void editor_row_insert_char(struct editor_row_t* row, int at, int c);
 void editor_set_status_message(const char* fmt, ...);
 int editor_row_cx_to_rx(struct editor_row_t* row, int cx);
 void editor_update_row(struct editor_row_t* row);
@@ -164,6 +166,25 @@ void editor_scroll() {
     if (g_config.render_x >= g_config.col_offset + g_config.screen_cols) {
         g_config.col_offset = g_config.render_x - g_config.screen_cols + 1;
     }
+}
+
+void editor_insert_char(int c) {
+    if (g_config.cursor_y == g_config.numrows) {
+        editor_append_row("", 0); /* newline at the end file */
+    }
+
+    editor_row_insert_char(&g_config.row[g_config.cursor_y], g_config.cursor_x,
+                           c);
+    g_config.cursor_x++;
+}
+
+void editor_row_insert_char(struct editor_row_t* row, int at, int c) {
+    if (at < 0 || at > row->size) at = row->size;
+    row->chars = realloc(row->chars, row->size + 2);
+    memmove(&row->chars[at + 1], &row->chars[at], row->size - at + 1);
+    row->size++;
+    row->chars[at] = c;
+    editor_update_row(row);
 }
 
 void editor_set_status_message(const char* fmt, ...) {
@@ -393,6 +414,7 @@ void editor_process_keypress() {
             break;
         }
         default:
+            editor_insert_char(c);
             break;
     }
 }
