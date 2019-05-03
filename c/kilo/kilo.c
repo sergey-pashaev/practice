@@ -1,12 +1,14 @@
 /* includes */
 #include <ctype.h>
 #include <errno.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <termios.h>
+#include <time.h>
 #include <unistd.h>
 
 #define _BSD_SOURCE
@@ -18,12 +20,15 @@ struct editor_row_t;
 
 void init_editor();
 void editor_scroll();
+void editor_set_status_message(const char* fmt, ...);
 int editor_row_cx_to_rx(struct editor_row_t* row, int cx);
 void editor_update_row(struct editor_row_t* row);
 void editor_append_row(char* s, size_t len);
 void editor_open();
 void editor_move_cursor(int key);
-void editor_draw_rows();
+void editor_draw_messagebar(struct abuf_t* ab);
+void editor_draw_statusbar(struct abuf_t* ab);
+void editor_draw_rows(struct abuf_t* ab);
 void editor_process_keypress();
 void editor_refresh_screen();
 void clear_screen();
@@ -69,6 +74,9 @@ struct editor_config_t {
     int screen_rows;
     int screen_cols;
     int numrows;
+    char* filename;
+    char statusmsg[80];
+    time_t statusmsg_time;
     struct editor_row_t* row;
     struct termios orig_termios;
 };
@@ -158,6 +166,14 @@ void editor_scroll() {
     }
 }
 
+void editor_set_status_message(const char* fmt, ...) {
+    va_list ap;
+    va_start(ap, fmt);
+    vsnprintf(g_config.statusmsg, sizeof(g_config.statusmsg), fmt, ap);
+    va_end(ap);
+    g_config.statusmsg_time = time(NULL);
+}
+
 /* file io */
 int editor_row_cx_to_rx(struct editor_row_t* row, int cx) {
     int rx = 0;
@@ -212,6 +228,9 @@ void editor_append_row(char* s, size_t len) {
 }
 
 void editor_open(char* filename) {
+    free(g_config.filename);
+    g_config.filename = strdup(filename);
+
     FILE* fp = fopen(filename, "r");
     if (!fp) die("fopen");
 
@@ -424,6 +443,49 @@ void editor_move_cursor(int key) {
 }
 
 /* output */
+void editor_draw_messagebar(struct abuf_t* ab) {
+    abuf_append(ab, "\x1b[K", 3);
+    int msglen = strlen(g_config.statusmsg);
+    if (msglen > g_config.screen_cols) {
+        msglen = g_config.screen_cols;
+    }
+
+    if (msglen && time(NULL) - g_config.statusmsg_time < 5) {
+        abuf_append(ab, g_config.statusmsg, msglen);
+    }
+}
+
+void editor_draw_statusbar(struct abuf_t* ab) {
+    abuf_append(ab, "\x1b[7m", 4); /* invert colors */
+
+    char status[80];
+    char rstatus[80];
+    int len = snprintf(status, sizeof(status), "%.20s - %d lines",
+                       g_config.filename ? g_config.filename : "[no name]",
+                       g_config.numrows);
+
+    int rlen = snprintf(rstatus, sizeof(rstatus), "%d/%d",
+                        g_config.cursor_y + 1, g_config.numrows);
+
+    if (len > g_config.screen_cols) {
+        len = g_config.screen_cols;
+    }
+
+    abuf_append(ab, status, len);
+
+    while (len < g_config.screen_cols) {
+        if (g_config.screen_cols - len == rlen) {
+            abuf_append(ab, rstatus, rlen);
+            break;
+        } else {
+            abuf_append(ab, " ", 1);
+            ++len;
+        }
+    }
+
+    abuf_append(ab, "\x1b[m", 3); /* restore colors */
+    abuf_append(ab, "\r\n", 2);   /* newline */
+}
 
 void editor_draw_rows(struct abuf_t* ab) {
     for (int y = 0; y < g_config.screen_rows; ++y) {
@@ -455,9 +517,7 @@ void editor_draw_rows(struct abuf_t* ab) {
         }
 
         abuf_append(ab, "\x1b[K", 3);
-        if (y < g_config.screen_rows - 1) {
-            abuf_append(ab, "\r\n", 2);
-        }
+        abuf_append(ab, "\r\n", 2);
     }
 }
 
@@ -472,6 +532,8 @@ void editor_refresh_screen() {
     abuf_append(&ab, "\x1b[H", 3);
 
     editor_draw_rows(&ab);
+    editor_draw_statusbar(&ab);
+    editor_draw_messagebar(&ab);
 
     /* position cursor */
     char buf[32];
@@ -506,9 +568,14 @@ void init_editor() {
     g_config.row = NULL;
     g_config.row_offset = 0;
     g_config.col_offset = 0;
+    g_config.filename = NULL;
+    g_config.statusmsg[0] = '\0';
+    g_config.statusmsg_time = 0;
 
     if (get_window_size(&g_config.screen_rows, &g_config.screen_cols) == -1)
         die("get_window_size");
+
+    g_config.screen_rows -= 2;
 }
 
 int main(int argc, char* argv[]) {
@@ -517,6 +584,8 @@ int main(int argc, char* argv[]) {
     if (argc >= 2) {
         editor_open(argv[1]);
     }
+
+    editor_set_status_message("HELP: Ctrl-Q = quit");
 
     while (1) {
         editor_refresh_screen();
