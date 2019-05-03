@@ -15,7 +15,7 @@ endif()
 add_definitions(-ggdb3)
 add_definitions(-Wall)
 add_definitions(-Wextra)
-add_definitions(-std=c11)
+add_definitions(-std=gnu11)
 add_definitions(-pedantic)
 add_definitions(-fsanitize=address)
 
