@@ -22,12 +22,15 @@ struct editor_row_t;
 
 void init_editor();
 char* editor_rows_to_string(int* buflen);
+void editor_delete_row(int at);
+void editor_free_row(struct editor_row_t* row);
 void editor_scroll();
 void editor_save();
 void editor_insert_char(int c);
 void editor_delete_char();
 void editor_row_insert_char(struct editor_row_t* row, int at, int c);
 void editor_row_delete_char(struct editor_row_t* row, int at);
+void editor_row_append_string(struct editor_row_t* row, char* s, size_t len);
 void editor_set_status_message(const char* fmt, ...);
 int editor_row_cx_to_rx(struct editor_row_t* row, int cx);
 void editor_update_row(struct editor_row_t* row);
@@ -178,6 +181,21 @@ void editor_save() {
     editor_set_status_message("Can't save! I/O error: %s", strerror(errno));
 }
 
+void editor_free_row(struct editor_row_t* row) {
+    free(row->render);
+    free(row->chars);
+}
+
+void editor_delete_row(int at) {
+    if (at < 0 || at >= g_config.numrows) return;
+
+    editor_free_row(&g_config.row[at]);
+    memmove(&g_config.row[at], &g_config.row[at + 1],
+            sizeof(struct editor_row_t) * (g_config.numrows - at - 1));
+    g_config.numrows--;
+    g_config.dirty++;
+}
+
 void editor_scroll() {
     g_config.render_x = 0;
     if (g_config.cursor_y < g_config.numrows) {
@@ -214,11 +232,18 @@ void editor_insert_char(int c) {
 
 void editor_delete_char() {
     if (g_config.cursor_y == g_config.numrows) return;
+    if (g_config.cursor_x == 0 && g_config.cursor_y == 0) return;
 
     struct editor_row_t* row = &g_config.row[g_config.cursor_y];
     if (g_config.cursor_x > 0) {
         editor_row_delete_char(row, g_config.cursor_x - 1);
         g_config.cursor_x--;
+    } else {
+        g_config.cursor_x = g_config.row[g_config.cursor_y - 1].size;
+        editor_row_append_string(&g_config.row[g_config.cursor_y - 1],
+                                 row->chars, row->size);
+        editor_delete_row(g_config.cursor_y);
+        g_config.cursor_y--;
     }
 }
 
@@ -240,6 +265,14 @@ void editor_row_delete_char(struct editor_row_t* row, int at) {
     g_config.dirty++;
 }
 
+void editor_row_append_string(struct editor_row_t* row, char* s, size_t len) {
+    row->chars = realloc(row->chars, row->size + len + 1);
+    memcpy(&row->chars[row->size], s, len);
+    row->size += len;
+    row->chars[row->size] = '\0';
+    editor_update_row(row);
+    g_config.dirty++;
+}
 void editor_set_status_message(const char* fmt, ...) {
     va_list ap;
     va_start(ap, fmt);
