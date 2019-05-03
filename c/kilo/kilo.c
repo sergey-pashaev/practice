@@ -349,6 +349,15 @@ void editor_process_keypress() {
         }
         case PAGE_UP:
         case PAGE_DOWN: {
+            if (c == PAGE_UP) {
+                g_config.cursor_y = g_config.row_offset;
+            } else if (c == PAGE_DOWN) {
+                g_config.cursor_y =
+                    g_config.row_offset + g_config.screen_rows - 1;
+                if (g_config.cursor_y > g_config.numrows) {
+                    g_config.cursor_y = g_config.numrows;
+                }
+            }
             int times = g_config.screen_rows;
             while (times--)
                 editor_move_cursor(c == PAGE_UP ? ARROW_UP : ARROW_DOWN);
