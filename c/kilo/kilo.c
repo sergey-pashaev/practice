@@ -25,7 +25,9 @@ char* editor_rows_to_string(int* buflen);
 void editor_scroll();
 void editor_save();
 void editor_insert_char(int c);
+void editor_delete_char();
 void editor_row_insert_char(struct editor_row_t* row, int at, int c);
+void editor_row_delete_char(struct editor_row_t* row, int at);
 void editor_set_status_message(const char* fmt, ...);
 int editor_row_cx_to_rx(struct editor_row_t* row, int cx);
 void editor_update_row(struct editor_row_t* row);
@@ -50,6 +52,7 @@ void enable_raw_mode();
 #define TRAILING_ZERO 1
 #define KILO_VERSION "0.0.1"
 #define KILO_TAB_STOP 8
+#define KILO_QUIT_TIMES 3
 
 enum editor_key_t {
     BACKSPACE = 127,
@@ -83,6 +86,7 @@ struct editor_config_t {
     int numrows;
     char* filename;
     char statusmsg[80];
+    int dirty;
     time_t statusmsg_time;
     struct editor_row_t* row;
     struct termios orig_termios;
@@ -161,6 +165,7 @@ void editor_save() {
             if (write(fd, buf, len) == len) {
                 close(fd);
                 free(buf);
+                g_config.dirty = 0;
                 editor_set_status_message("%d bytes written to disk", len);
                 return;
             }
@@ -207,6 +212,16 @@ void editor_insert_char(int c) {
     g_config.cursor_x++;
 }
 
+void editor_delete_char() {
+    if (g_config.cursor_y == g_config.numrows) return;
+
+    struct editor_row_t* row = &g_config.row[g_config.cursor_y];
+    if (g_config.cursor_x > 0) {
+        editor_row_delete_char(row, g_config.cursor_x - 1);
+        g_config.cursor_x--;
+    }
+}
+
 void editor_row_insert_char(struct editor_row_t* row, int at, int c) {
     if (at < 0 || at > row->size) at = row->size;
     row->chars = realloc(row->chars, row->size + 2);
@@ -214,6 +229,15 @@ void editor_row_insert_char(struct editor_row_t* row, int at, int c) {
     row->size++;
     row->chars[at] = c;
     editor_update_row(row);
+    g_config.dirty++;
+}
+
+void editor_row_delete_char(struct editor_row_t* row, int at) {
+    if (at < 0 || at >= row->size) return;
+    memmove(&row->chars[at], &row->chars[at + 1], row->size - at);
+    row->size--;
+    editor_update_row(row);
+    g_config.dirty++;
 }
 
 void editor_set_status_message(const char* fmt, ...) {
@@ -275,6 +299,7 @@ void editor_append_row(char* s, size_t len) {
     editor_update_row(&g_config.row[at]);
 
     g_config.numrows++;
+    g_config.dirty++;
 }
 
 void editor_open(char* filename) {
@@ -298,6 +323,7 @@ void editor_open(char* filename) {
 
     free(line);
     fclose(fp);
+    g_config.dirty = 0;
 }
 
 void disable_raw_mode() {
@@ -402,12 +428,21 @@ int editor_read_key() {
 
 /* input  */
 void editor_process_keypress() {
+    static int quit_times = KILO_QUIT_TIMES;
     int c = editor_read_key();
     switch (c) {
         case '\r': {
             break;
         }
         case CTRL_KEY('q'): {
+            if (g_config.dirty > 0 && quit_times > 0) {
+                editor_set_status_message(
+                    "WARNING! File has unsaved changes. "
+                    "Press Ctrl-Q %d more times to quit.",
+                    quit_times);
+                --quit_times;
+                return;
+            }
             clear_screen();
             exit(0);
             break;
@@ -452,6 +487,8 @@ void editor_process_keypress() {
         case BACKSPACE:
         case CTRL_KEY('h'):
         case DEL_KEY: {
+            if (c == DEL_KEY) editor_move_cursor(ARROW_RIGHT);
+            editor_delete_char();
             break;
         }
         case CTRL_KEY('l'):
@@ -462,6 +499,8 @@ void editor_process_keypress() {
             editor_insert_char(c);
             break;
     }
+
+    quit_times = KILO_QUIT_TIMES;
 }
 
 void editor_move_cursor(int key) {
@@ -527,9 +566,9 @@ void editor_draw_statusbar(struct abuf_t* ab) {
 
     char status[80];
     char rstatus[80];
-    int len = snprintf(status, sizeof(status), "%.20s - %d lines",
+    int len = snprintf(status, sizeof(status), "%.20s - %d lines %s",
                        g_config.filename ? g_config.filename : "[no name]",
-                       g_config.numrows);
+                       g_config.numrows, g_config.dirty ? "(modified)" : "");
 
     int rlen = snprintf(rstatus, sizeof(rstatus), "%d/%d",
                         g_config.cursor_y + 1, g_config.numrows);
@@ -659,6 +698,7 @@ void init_editor() {
     g_config.filename = NULL;
     g_config.statusmsg[0] = '\0';
     g_config.statusmsg_time = 0;
+    g_config.dirty = 0;
 
     if (get_window_size(&g_config.screen_rows, &g_config.screen_cols) == -1)
         die("get_window_size");
