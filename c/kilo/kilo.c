@@ -48,6 +48,7 @@ void enable_raw_mode();
 #define KILO_TAB_STOP 8
 
 enum editor_key_t {
+    BACKSPACE = 127,
     ARROW_LEFT = 1000,
     ARROW_RIGHT,
     ARROW_UP,
@@ -375,6 +376,9 @@ int editor_read_key() {
 void editor_process_keypress() {
     int c = editor_read_key();
     switch (c) {
+        case '\r': {
+            break;
+        }
         case CTRL_KEY('q'): {
             clear_screen();
             exit(0);
@@ -411,6 +415,15 @@ void editor_process_keypress() {
             if (g_config.cursor_y < g_config.numrows) {
                 g_config.cursor_x = g_config.row[g_config.cursor_y].size;
             }
+            break;
+        }
+        case BACKSPACE:
+        case CTRL_KEY('h'):
+        case DEL_KEY: {
+            break;
+        }
+        case CTRL_KEY('l'):
+        case '\x1b': {
             break;
         }
         default:
