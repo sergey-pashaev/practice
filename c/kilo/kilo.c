@@ -368,7 +368,9 @@ void editor_process_keypress() {
             break;
         }
         case END_KEY: {
-            g_config.cursor_x = g_config.screen_cols - 1;
+            if (g_config.cursor_y < g_config.numrows) {
+                g_config.cursor_x = g_config.row[g_config.cursor_y].size;
+            }
             break;
         }
         default:
