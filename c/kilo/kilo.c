@@ -26,6 +26,7 @@ void editor_delete_row(int at);
 void editor_free_row(struct editor_row_t* row);
 void editor_scroll();
 void editor_save();
+void editor_insert_newline();
 void editor_insert_char(int c);
 void editor_delete_char();
 void editor_row_insert_char(struct editor_row_t* row, int at, int c);
@@ -34,7 +35,7 @@ void editor_row_append_string(struct editor_row_t* row, char* s, size_t len);
 void editor_set_status_message(const char* fmt, ...);
 int editor_row_cx_to_rx(struct editor_row_t* row, int cx);
 void editor_update_row(struct editor_row_t* row);
-void editor_append_row(char* s, size_t len);
+void editor_insert_row(int at, char* s, size_t len);
 void editor_open();
 void editor_move_cursor(int key);
 void editor_draw_messagebar(struct abuf_t* ab);
@@ -222,12 +223,30 @@ void editor_scroll() {
 
 void editor_insert_char(int c) {
     if (g_config.cursor_y == g_config.numrows) {
-        editor_append_row("", 0); /* newline at the end file */
+        editor_insert_row(g_config.numrows, "",
+                          0); /* newline at the end file */
     }
 
     editor_row_insert_char(&g_config.row[g_config.cursor_y], g_config.cursor_x,
                            c);
     g_config.cursor_x++;
+}
+
+void editor_insert_newline() {
+    if (g_config.cursor_x == 0) {
+        editor_insert_row(g_config.cursor_y, "", 0);
+    } else {
+        struct editor_row_t* row = &g_config.row[g_config.cursor_y];
+        editor_insert_row(g_config.cursor_y + 1, &row->chars[g_config.cursor_x],
+                          row->size - g_config.cursor_x);
+        row = &g_config.row[g_config.cursor_y];
+        row->size = g_config.cursor_x;
+        row->chars[row->size] = '\0';
+        editor_update_row(row);
+    }
+
+    g_config.cursor_y++;
+    g_config.cursor_x = 0;
 }
 
 void editor_delete_char() {
@@ -316,11 +335,14 @@ void editor_update_row(struct editor_row_t* row) {
     row->rsize = idx;
 }
 
-void editor_append_row(char* s, size_t len) {
+void editor_insert_row(int at, char* s, size_t len) {
+    if (at < 0 || at > g_config.numrows) return;
+
     g_config.row = realloc(
         g_config.row, sizeof(struct editor_row_t) * (g_config.numrows + 1));
+    memmove(&g_config.row[at + 1], &g_config.row[at],
+            sizeof(struct editor_row_t) * (g_config.numrows - at));
 
-    int at = g_config.numrows;
     g_config.row[at].size = len;
     g_config.row[at].chars = malloc(len + 1);
     memcpy(g_config.row[at].chars, s, len);
@@ -351,7 +373,7 @@ void editor_open(char* filename) {
             linelen--;
         }
 
-        editor_append_row(line, linelen);
+        editor_insert_row(g_config.numrows, line, linelen);
     }
 
     free(line);
@@ -465,6 +487,7 @@ void editor_process_keypress() {
     int c = editor_read_key();
     switch (c) {
         case '\r': {
+            editor_insert_newline();
             break;
         }
         case CTRL_KEY('q'): {
