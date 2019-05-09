@@ -20,6 +20,7 @@
 struct abuf_t;
 struct editor_row_t;
 
+char* editor_prompt(char* prompt);
 void init_editor();
 char* editor_rows_to_string(int* buflen);
 void editor_delete_row(int at);
@@ -158,7 +159,12 @@ int get_cursor_position(int* row, int* col) {
 }
 
 void editor_save() {
-    if (g_config.filename == NULL) return;
+    if (g_config.filename == NULL) {
+        g_config.filename = editor_prompt("Save as: %s");
+        if (g_config.filename == NULL) {
+            editor_set_status_message("Save aborted");
+        }
+    }
 
     int len;
     char* buf = editor_rows_to_string(&len);
@@ -741,6 +747,41 @@ char* editor_rows_to_string(int* buflen) {
     }
 
     return buf;
+}
+
+char* editor_prompt(char* prompt) {
+    size_t bufsize = 128;
+    char* buf = malloc(bufsize);
+
+    size_t buflen = 0;
+    buf[0] = '\0';
+
+    while (1) {
+        editor_set_status_message(prompt, buf);
+        editor_refresh_screen();
+
+        int c = editor_read_key();
+        if (c == DEL_KEY || c == CTRL_KEY('h') || c == BACKSPACE) {
+            if (buflen != 0) buf[--buflen] = '\0';
+        } else if (c == '\x1b') {
+            editor_set_status_message("");
+            free(buf);
+            return NULL;
+        } else if (c == '\r') {
+            if (buflen != 0) {
+                editor_set_status_message("");
+                return buf;
+            }
+        } else if (!iscntrl(c) && c < 128) {
+            if (buflen == bufsize - 1) {
+                bufsize *= 2;
+                buf = realloc(buf, bufsize);
+            }
+
+            buf[buflen++] = c;
+            buf[buflen] = '\0';
+        }
+    }
 }
 
 void init_editor() {
