@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 3.1..3.11)
 
+if(${CMAKE_VERSION} VERSION_LESS 3.12)
+  cmake_policy(VERSION ${CMAKE_VERSION})
+endif()
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 include(CTest)
@@ -16,5 +20,6 @@ add_subdirectory(thirdparty)
 
 add_subdirectory(algo)
 add_subdirectory(ciu)
-add_subdirectory(grok)
 add_subdirectory(design)
+add_subdirectory(grok)
+add_subdirectory(ncpp)
