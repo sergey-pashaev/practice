@@ -29,6 +29,10 @@ class Buffer {
 
     std::size_t GetLinesCount() const;
     const String& GetLine(std::size_t row) const;
+    String& GetLine(std::size_t row);
+
+    void InsertChar(Char c);
+    void DeleteChar();
 
     // TODO: add count parameter
     void MovePointForward();
@@ -43,6 +47,7 @@ class Buffer {
    private:
     std::size_t ReadFile(const char* path);
     const String& GetCurrentLine() const;
+    String& GetCurrentLine();
     std::size_t GetCurrentLineLastCol() const;
 
    private:

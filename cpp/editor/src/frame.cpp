@@ -1,5 +1,6 @@
 #include <editor/frame.hpp>
 
+#include <cctype>
 #include <cstdlib>
 #include <sstream>
 
@@ -129,7 +130,16 @@ void Frame::ProcessInput() {
             buf_->MoveLineBackward();
             break;
         }
-        default: {}
+        case KEY_BACKSPACE: {
+            buf_->DeleteChar();
+            break;
+        }
+        default: {
+            if (std::isprint(input_) || input_ == '\r' || input_ == '\n') {
+                buf_->InsertChar(input_);
+            }
+            break;
+        }
     }
 }
 }  // namespace editor

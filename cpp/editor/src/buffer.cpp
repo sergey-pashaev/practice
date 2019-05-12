@@ -28,7 +28,45 @@ const Buffer::String& Buffer::GetLine(std::size_t row) const {
     return lines_.at(row);
 }
 
+Buffer::String& Buffer::GetLine(std::size_t row) { return lines_.at(row); }
+
+void Buffer::InsertChar(Char c) {
+    String& line = GetCurrentLine();
+    auto cur_pos = line.begin() + point_.col;
+    if (c == '\r' || c == '\n') {
+        String new_line(cur_pos, line.end());
+        line.erase(cur_pos, line.end());
+        lines_.insert(lines_.begin() + point_.row + 1, new_line);
+        point_.row++;
+        point_.col = 0;
+    } else {
+        line.insert(cur_pos, c);
+        point_.col++;
+    }
+}
+
+void Buffer::DeleteChar() {
+    String& line = GetCurrentLine();
+    if (point_.col > 0) {
+        line.erase(point_.col - 1, 1);
+        point_.col--;
+    } else {
+        if (point_.row > 0) {
+            String& prev_line = GetLine(point_.row - 1);
+            point_.col = prev_line.size();
+            prev_line.append(line);
+            lines_.erase(lines_.begin() + point_.row);
+            point_.row--;
+        }
+    }
+}
+
 std::size_t Buffer::GetLinesCount() const { return lines_.size(); }
+
+Buffer::String& Buffer::GetCurrentLine() {
+    assert(point_.row < GetLinesCount() && "out of range buffer access");
+    return GetLine(point_.row);
+}
 
 const Buffer::String& Buffer::GetCurrentLine() const {
     assert(point_.row < GetLinesCount() && "out of range buffer access");
