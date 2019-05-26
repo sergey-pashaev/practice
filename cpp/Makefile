@@ -3,7 +3,7 @@
 all: build
 
 build:
-	./scripts/build.sh
+	./scripts/build.sh -DCMAKE_BUILD_TYPE=Debug
 
 test:
 	./scripts/tests.sh -DUSE_KCOV=0
