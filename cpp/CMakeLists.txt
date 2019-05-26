@@ -19,6 +19,7 @@ include_directories(thirdparty)
 add_subdirectory(thirdparty)
 
 add_subdirectory(algo)
+add_subdirectory(adt)
 add_subdirectory(ciu)
 add_subdirectory(design)
 add_subdirectory(editor)
