@@ -7,7 +7,9 @@ IFS=$'\n\t'
 cd "${0%/*}/.."
 
 mkdir -p build/ && cd build/
-conan install .. --build=missing
+export CC=clang
+export CXX=clang++
+conan install .. --build=missing --profile=../conan/clang6
 cmake $@ ..
 cmake --build .
 cd ../
