@@ -7,7 +7,7 @@ IFS=$'\n\t'
 cd "${0%/*}/.."
 
 mkdir -p build/ && cd build/
-conan install ..
+conan install .. --build=missing
 cmake $@ ..
 cmake --build .
 cd ../
