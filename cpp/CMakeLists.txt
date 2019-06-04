@@ -6,6 +6,14 @@ endif()
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+option(USE_CCACHE "Use ccache if available" ON)
+if(USE_CCACHE)
+  find_program(CCACHE_PROGRAM ccache)
+  if(CCACHE_PROGRAM)
+    set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+  endif()
+endif()
+
 include(CTest)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -28,3 +36,4 @@ add_subdirectory(design)
 add_subdirectory(editor)
 add_subdirectory(grok)
 add_subdirectory(ncpp)
+add_subdirectory(idiom)
