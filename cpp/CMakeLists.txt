@@ -12,10 +12,13 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# conan
+include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+conan_basic_setup()
+
 add_definitions(-Wall)
 add_definitions(-Wextra)
 
-include_directories(thirdparty)
 add_subdirectory(thirdparty)
 
 add_subdirectory(algo)

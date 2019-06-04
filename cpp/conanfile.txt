@@ -1,0 +1,8 @@
+[requires]
+Catch2/2.5.0@catchorg/stable
+fmt/5.3.0@bincrafters/stable
+
+[options]
+
+[generators]
+cmake
