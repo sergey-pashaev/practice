@@ -6,3 +6,5 @@ endif()
 
 
 add_executable(loggable loggable.cpp)
+
+add_executable(clonable clonable.cpp)
