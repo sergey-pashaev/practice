@@ -41,3 +41,23 @@ TEST_CASE("sorting") {
         REQUIRE(is_sorted(begin(v), end(v), cmp));
     }
 }
+
+template <typename Fwd>
+bool is_unique(Fwd first, Fwd last) {
+    // Search range [first, last) for two consecutive identical
+    // elements and make sure no such elements found.
+    return adjacent_find(first, last) == last;
+}
+
+TEST_CASE("remove duplicates") {
+    vector<int> v = {0, 1, 1, 2, 3, 2, 2};
+
+    // sort first since unique removes only consecutive duplicates
+    sort(begin(v), end(v));
+
+    auto new_end = unique(begin(v), end(v));
+    v.erase(new_end, end(v));
+
+    REQUIRE(v.size() == 4);
+    REQUIRE(is_unique(begin(v), end(v)));
+}
