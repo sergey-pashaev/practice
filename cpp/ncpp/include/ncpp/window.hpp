@@ -41,7 +41,8 @@ class Window {
     };
 
     using WindowPtr = std::unique_ptr<WINDOW, WindowDeleter>;
-    static_assert(sizeof(WindowPtr) == sizeof(WINDOW*));
+    static_assert(sizeof(WindowPtr) == sizeof(WINDOW*),
+                  "unique_ptr space overhead detected");
 
     WindowPtr win_;
 };
