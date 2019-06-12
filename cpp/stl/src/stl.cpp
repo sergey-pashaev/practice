@@ -1,11 +1,17 @@
 #include <algorithm>
+#include <condition_variable>
+#include <iostream>
+#include <mutex>
 #include <string>
 #include <string_view>
+#include <thread>
 #include <vector>
 
 #include <catch2/catch.hpp>
 
 using namespace std;
+
+// sorting
 
 struct Widget {
     int id;
@@ -43,6 +49,8 @@ TEST_CASE("sorting") {
     }
 }
 
+// unique
+
 template <typename Fwd>
 bool is_unique(Fwd first, Fwd last) {
     // Search range [first, last) for two consecutive identical
@@ -62,6 +70,8 @@ TEST_CASE("remove duplicates") {
     REQUIRE(v.size() == 4);
     REQUIRE(is_unique(begin(v), end(v)));
 }
+
+// string utilities
 
 vector<size_t> find_all_pos(const string& str, const string& pattern) {
     vector<size_t> ret;
@@ -143,4 +153,48 @@ TEST_CASE("cases") {
         to_upper(s);
         REQUIRE(s == "HELLO DARKNESS MY OLD FRIEND.");
     }
+}
+
+// condition variables
+
+class SharedState {
+   public:
+    void Done() {
+        lock_guard<mutex> guard(mtx_);
+        done_ = true;
+        cv_.notify_one();
+    }
+
+    void WaitUntilDone() {
+        unique_lock<mutex> lock(mtx_);
+        cv_.wait(lock, [this]() { return done_; });
+    }
+
+   private:
+    bool done_ = false;
+    mutex mtx_;
+    condition_variable cv_;
+};
+
+void Task1(SharedState& state) {
+    cout << "Task #1 started\n";
+    // simulate work
+    this_thread::sleep_for(1000ms);
+    // mark as done
+    state.Done();
+    cout << "Task #1 ended\n";
+}
+
+void Task2(SharedState& state) {
+    state.WaitUntilDone();
+    cout << "Task #2 started\n";
+    cout << "Task #2 ended\n";
+}
+
+TEST_CASE("conditional variable") {
+    SharedState state;
+    thread t1(Task1, ref(state));
+    thread t2(Task2, ref(state));
+    t1.join();
+    t2.join();
 }

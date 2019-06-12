@@ -5,5 +5,5 @@ if(${CMAKE_VERSION} VERSION_LESS 3.12)
 endif()
 
 add_executable(stl stl.cpp)
-target_link_libraries(stl catch2)
+target_link_libraries(stl catch2 pthread)
 add_test(NAME stl COMMAND stl)
