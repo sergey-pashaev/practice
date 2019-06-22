@@ -22,7 +22,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 # conan
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-conan_basic_setup()
+conan_basic_setup(NO_OUTPUT_DIRS)
 
 add_definitions(-Wall)
 add_definitions(-Wextra)
