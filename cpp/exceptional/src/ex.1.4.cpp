@@ -18,12 +18,12 @@ class fixed_vector {
 
     fixed_vector() = default;
 
-    // works for same size only
+    // copy ctor for same size only
     fixed_vector(const fixed_vector& other) {
         std::copy(other.begin(), other.end(), begin());
     }
 
-    // works for same size only
+    // assignment for same size only
     fixed_vector& operator=(const fixed_vector& other) {
         std::copy(other.begin(), other.end(), begin());
         return *this;
