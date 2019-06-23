@@ -1,6 +1,6 @@
 // ex.1.1
 
-// Найдите и объясните ошибки в коде.
+// Итераторы
 
 #include <algorithm>
 #include <iostream>
