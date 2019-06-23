@@ -16,3 +16,4 @@ endfunction()
 
 runable(ex.1.1)
 testable(ex.1.2)
+testable(ex.1.3)
