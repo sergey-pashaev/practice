@@ -4,4 +4,15 @@ if(${CMAKE_VERSION} VERSION_LESS 3.12)
   cmake_policy(VERSION ${CMAKE_VERSION})
 endif()
 
-add_executable(ex.1.1 ex.1.1.cpp)
+function(runable NAME)
+  add_executable("${NAME}" "${NAME}.cpp")
+endfunction()
+
+function(testable NAME)
+  add_executable("${NAME}" "${NAME}.cpp")
+  target_link_libraries("${NAME}" catch2)
+  add_test(NAME "${NAME}" COMMAND "${NAME}")
+endfunction()
+
+runable(ex.1.1)
+testable(ex.1.2)
