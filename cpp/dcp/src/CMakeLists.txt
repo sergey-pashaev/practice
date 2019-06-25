@@ -6,3 +6,4 @@ endif()
 
 testable(ex.1)
 testable(ex.2)
+testable(ex.3)
