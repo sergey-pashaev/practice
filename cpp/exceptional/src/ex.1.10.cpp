@@ -25,8 +25,8 @@ class GreaterThan : public unary_function<T, bool> {
 TEST_CASE("GreaterThan") {
     vector<int> vi = {1, 2, 3, 4, 5, 6, 7, 8};
 
-    REQUIRE(find_if(vi.begin(), vi.end(), GreaterThan(5)) != vi.end());
-    REQUIRE(find_if(vi.begin(), vi.end(), GreaterThan(10)) == vi.end());
+    REQUIRE(find_if(vi.begin(), vi.end(), GreaterThan<int>(5)) != vi.end());
+    REQUIRE(find_if(vi.begin(), vi.end(), GreaterThan<int>(10)) == vi.end());
 }
 
 // example of predicate with state
