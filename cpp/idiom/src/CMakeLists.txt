@@ -9,4 +9,4 @@ add_executable(loggable loggable.cpp)
 
 add_executable(clonable clonable.cpp)
 
-add_executable(badge badge.cpp)
+# TODO: add_executable(badge badge.cpp)
