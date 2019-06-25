@@ -3,7 +3,6 @@
 #include <iostream>
 #include <mutex>
 #include <string>
-#include <string_view>
 #include <thread>
 #include <vector>
 
@@ -105,6 +104,8 @@ TEST_CASE("find all positions of string") {
     }
 }
 
+#if defined(__GNUC__) && (__GNUC___ > 7 || (__GNUC__ == 7 && __GNUC_MINOR__ >= 1))
+#include <string_view>
 vector<string_view> find_all_view(const string& str, string_view pattern) {
     vector<string_view> ret;
     const char* data = str.data();
@@ -132,6 +133,7 @@ TEST_CASE("find all views of string") {
         REQUIRE(matches[0] == pattern);
     }
 }
+#endif
 
 void to_lower(string& s) {
     transform(s.begin(), s.end(), s.begin(), ::tolower);
