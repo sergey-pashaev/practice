@@ -46,40 +46,55 @@ struct Node {
     Node* right = nullptr;
 };
 
-string serialize(const Node& n, int lvl, string& acc) {
-    acc += to_string(lvl) + ':' + n.val + ' ';
-    if (n.left) serialize(*n.left, lvl + 1, acc);
-    if (n.right) serialize(*n.right, lvl + 1, acc);
-    return acc;
-}
+const char* nil = "nil";
+const char* sep = " ";
 
-string serialize(const Node& root) {
-    string acc;
-    return serialize(root, 0, acc);
-}
-
-vector<string> split(const string& s, char delimiter) {
-    vector<string> tokens;
-    istringstream ss(s);
-    for (string token; getline(ss, token, delimiter);) {
-        tokens.push_back(token);
+string serialize(const Node* root, ostringstream& oss) {
+    if (root) {
+        oss << root->val << ' ';
+        serialize(root->left, oss);
+        serialize(root->right, oss);
+    } else {
+        oss << nil << ' ';
     }
-    return tokens;
+
+    return oss.str();
 }
 
-Node* deserialize(const vector<string>& vs) {
-    for (auto& s : vs) {
-        cout << s;
+string serialize(const Node* root) {
+    ostringstream oss;
+    return serialize(root, oss);
+}
+
+void deserialize(istringstream& iss, Node*& root) {
+    if (!iss.eof()) {
+        string val;
+        iss >> val;
+
+        if (val == nil) return;
+
+        root = new Node(val);
+        deserialize(iss, root->left);
+        deserialize(iss, root->right);
+    } else {
+        root = nullptr;
     }
-    return nullptr;
 }
 
-Node* deserialize(const vector<string>& vs, Node* prev) {}
+Node* deserialize(const string& s) {
+    istringstream iss(s);
+    Node* root = nullptr;
+    deserialize(iss, root);
+    return root;
+}
 
 TEST_CASE("ex.3") {
     Node* root = new Node("root", new Node("left", new Node("left.left")),
                           new Node("right"));
 
-    cout << serialize(*root) << '\n';
+    Node* new_root = deserialize(serialize(root));
+    REQUIRE(new_root->left->left->val == "left.left");
+
     Node::clean(root);
+    Node::clean(new_root);
 }
