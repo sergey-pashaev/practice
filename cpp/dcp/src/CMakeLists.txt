@@ -5,3 +5,4 @@ if(${CMAKE_VERSION} VERSION_LESS 3.12)
 endif()
 
 testable(ex.1)
+testable(ex.2)
