@@ -18,6 +18,8 @@
 
 using namespace std;
 
+// move all non-positive numbers to beginning
+// [3, 4, -1, 1] -> [-1, 4, 3, 1]
 int segregate(int a[], int size) {
     int j = 0;
     for (int i = 0; i < size; ++i) {
@@ -31,6 +33,9 @@ int segregate(int a[], int size) {
 }
 
 int lowest_positive_missing(int a[], int size) {
+    // when abs(a[i]) is positive - mark a[abs(i) - 1] as
+    // visited/negative, so we alreadye saw 'abs(i) - 1' number during
+    // traverse
     for (int i = 0; i < size; ++i) {
         int idx = abs(a[i]) - 1;
         if (idx < size && a[idx] > 0) {
@@ -38,6 +43,8 @@ int lowest_positive_missing(int a[], int size) {
         }
     }
 
+    // first not marked w/ negative sign number tells us that 'i + 1'
+    // number was missing from array
     for (int i = 0; i < size; ++i) {
         if (a[i] > 0) return i + 1;
     }
