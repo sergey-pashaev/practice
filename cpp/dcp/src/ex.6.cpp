@@ -26,23 +26,34 @@ struct Node {
 
 struct XorList {
     Node* head = nullptr;
+
     XorList() = default;
+
     ~XorList() {
-        // TODO:
+        Node* curr = head;
+        Node* prev = nullptr;
+        Node* next = nullptr;
+        while (curr) {
+            next = Next(curr, prev);
+            prev = curr;
+
+            delete curr;
+            curr = next;
+        }
     }
 
-    Node* Next(Node* node, Node* prev) {
+    Node* Next(Node* curr, Node* prev) {
         Node* ret = nullptr;
-        if (node->both) {
-            ret = (Node*)(uintptr_t(prev) ^ node->both);
+        if (curr && curr->both) {
+            ret = (Node*)(uintptr_t(prev) ^ curr->both);
         }
         return ret;
     }
 
-    Node* Prev(Node* node, Node* next) {
+    Node* Prev(Node* curr, Node* next) {
         Node* ret = nullptr;
-        if (node->both) {
-            ret = (Node*)(uintptr_t(next) ^ node->both);
+        if (curr && curr->both) {
+            ret = (Node*)(uintptr_t(next) ^ curr->both);
         }
         return ret;
     }
@@ -52,48 +63,46 @@ struct XorList {
             head = node;
             return;
         } else {
-            Node* cur = head;
+            Node* curr = head;
             Node* prev = nullptr;
-            Node* next = Next(cur, prev);
+            Node* next = Next(curr, prev);
             while (next) {
-                prev = cur;
-                cur = next;
-                next = Next(cur, prev);
+                prev = curr;
+                curr = next;
+                next = Next(curr, prev);
             }
 
-            cur->both = uintptr_t(prev) ^ uintptr_t(node);
-            node->both = uintptr_t(cur) ^ uintptr_t(next);
+            curr->both = uintptr_t(prev) ^ uintptr_t(node);
+            node->both = uintptr_t(curr) ^ uintptr_t(next);
         }
     }
 
     Node* Get(size_t n) {
-        if (!head) return nullptr;
         size_t i = 0;
-        Node* cur = head;
-        if (i == n) return cur;
+        Node* curr = head;
         Node* prev = nullptr;
-        Node* next = Next(cur, prev);
-        while (next) {
-            prev = cur;
-            cur = next;
-            ++i;
-            if (i == n) return cur;
-            next = Next(cur, prev);
+        Node* next = nullptr;
+        while (curr) {
+            if (i++ == n) return curr;
+
+            next = Next(curr, prev);
+            prev = curr;
+            curr = next;
         }
+
         return nullptr;
     }
 
     void Print() {
-        if (!head) return;
-        Node* cur = head;
-        cout << cur->v << "\n";
+        Node* curr = head;
         Node* prev = nullptr;
-        Node* next = Next(cur, prev);
-        while (next) {
-            prev = cur;
-            cur = next;
-            cout << cur->v << "\n";
-            next = Next(cur, prev);
+        Node* next = nullptr;
+        while (curr) {
+            cout << curr->v << '\n';
+
+            next = Next(curr, prev);
+            prev = curr;
+            curr = next;
         }
     }
 };
