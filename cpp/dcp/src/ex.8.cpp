@@ -42,25 +42,22 @@ struct Node {
 };
 
 void f(Node* node, Node* parent, int& acc) {
-    if (node->l) ++acc;
-    if (node->r) ++acc;
+    if (!node) return;  // empty node
 
-    if (parent && node->v != parent->v && acc > 0) {
-        --acc;
+    if (!parent) {
+        acc = 1;  // root case
+    } else {
+        if (node->v == parent->v) {
+            ++acc;
+        }
     }
 
-    if (node->l) {
-        f(node->l, node, acc);
-    }
-
-    if (node->r) {
-        f(node->r, node, acc);
-    }
+    f(node->l, node, acc);
+    f(node->r, node, acc);
 }
 
 int f(Node* root) {
-    if (!root) return 0;
-    int acc = 1;
+    int acc = 0;
     f(root, nullptr, acc);
     return acc;
 }
