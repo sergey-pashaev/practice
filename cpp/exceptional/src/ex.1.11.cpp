@@ -45,7 +45,7 @@ TEST_CASE("Ca without SomeFunc call") {
     (void)without;
 }
 
-TEST_CASE("Ca without SomeFunc call") {
+TEST_CASE("Ca with SomeFunc call") {
     WithClone with;
     WithCloneConst with_const;
     WithCloneDefault with_default;
@@ -173,12 +173,12 @@ struct Derived : public Clonable {};
 struct NotDerived {};
 
 TEST_CASE("IsDerivedFrom1") {
-    X<Derived> derived;         // ok:
-    X<NotDerived> not_derived;  // TODO: shouldn't compile
+    X<Derived> derived;         // ok
+    // X<NotDerived> not_derived;  // ok: should not compile
 
     // fix warnings
     (void)derived;
-    (void)not_derived;
+    // (void)not_derived;
 }
 
 // 3b.
