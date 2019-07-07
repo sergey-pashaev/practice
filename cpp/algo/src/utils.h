@@ -18,7 +18,7 @@ bool is_sorted(std::size_t size, Func f) {
     std::uniform_int_distribution<int> dist(1, 1000);
 
     std::chrono::milliseconds sum{0};
-    const int runs = 20;
+    const int runs = 3;
     for (int run = 0; run < runs; ++run) {
         for (std::size_t i = 0; i < size; ++i) {
             v.emplace_back(dist(gen));
