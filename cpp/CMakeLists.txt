@@ -36,7 +36,7 @@ endfunction()
 
 function(testable NAME)
   add_executable("${NAME}" "${NAME}.cpp")
-  target_link_libraries("${NAME}" catch2)
+  target_link_libraries("${NAME}" PRIVATE catch2)
   add_test(NAME "${NAME}" COMMAND "${NAME}")
 endfunction()
 
