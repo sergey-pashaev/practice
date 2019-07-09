@@ -18,3 +18,4 @@ testable(ex.10)
 target_link_libraries(ex.10 PRIVATE pthread)
 
 testable(ex.11)
+testable(ex.12)
