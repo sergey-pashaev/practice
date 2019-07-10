@@ -5,3 +5,4 @@ if(${CMAKE_VERSION} VERSION_LESS 3.12)
 endif()
 
 testable(sock-merchant)
+testable(counting-valleys)
