@@ -26,19 +26,21 @@
 using namespace std;
 
 bool is_anagram(const string& s1, const string& s2) {
-    unordered_map<char, int> h;
-    for (char c : s1) {
-        ++h[c];
+    char az[26] = {};
+
+    const size_t n = s1.size();
+    for (size_t i = 0; i < n; ++i) {
+        ++az[s1[i] - 'a'];
+        --az[s2[i] - 'a'];
     }
 
-    for (char c : s2) {
-        --h[c];
-        if (h[c] <= 0) {
-            h.erase(c);
+    for (size_t i = 0; i < 26; ++i) {
+        if (az[i] != 0) {
+            return false;
         }
     }
 
-    return h.empty();
+    return true;
 }
 
 TEST_CASE("is_anagram") {
