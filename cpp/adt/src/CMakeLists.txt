@@ -6,3 +6,4 @@ endif()
 
 testable(circular_buffer)
 testable(trie)
+testable(tst)
