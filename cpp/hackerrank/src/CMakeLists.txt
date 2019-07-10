@@ -6,3 +6,4 @@ endif()
 
 testable(sock-merchant)
 testable(counting-valleys)
+testable(jumping-on-the-clouds)
