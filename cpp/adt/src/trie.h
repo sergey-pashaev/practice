@@ -4,7 +4,7 @@
 namespace psv {
 
 template <std::size_t alphabet_size>
-class Trie {
+class TrieRWays {
    private:
     struct Node {
         std::array<Node*, alphabet_size> children = {};
@@ -12,9 +12,9 @@ class Trie {
     };
 
    public:
-    Trie() : root_{new Node()} {}
+    TrieRWays() : root_{new Node()} {}
 
-    ~Trie() {
+    ~TrieRWays() {
         if (root_) {
             Clean(root_);
         }

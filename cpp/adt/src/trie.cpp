@@ -3,7 +3,7 @@
 #include "trie.h"
 
 TEST_CASE("trie") {
-    psv::Trie<26> t;
+    psv::TrieRWays<26> t;
 
     t.Insert("some");
     t.Insert("words");
