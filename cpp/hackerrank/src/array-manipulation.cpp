@@ -40,32 +40,24 @@
 
 using namespace std;
 
-long do_query(const vector<int>& q, vector<long>& v) {
-    int a = q[0] - 1;
-    int b = q[1] - 1;
-    int k = q[2];
-
-    long max_v = v[a];
-
-    for (int i = a; i <= b; ++i) {
-        v[i] += k;
-        if (v[i] > max_v) {
-            max_v = v[i];
-        }
-    }
-
-    return max_v;
-}
-
 long manipulation(int n, const vector<vector<int>>& queries) {
-    vector<long> v(n, 0);
-    long max = 0;
+    vector<long> v(n + 1, 0);
 
     for (auto& q : queries) {
-        long t = do_query(q, v);
-        if (t > max) {
-            max = t;
-        }
+        int a = q[0] - 1;
+        int b = q[1] - 1;
+        int k = q[2];
+
+        // += or -= k - indicates difference w/ previous element in vector
+        v[a] += k;
+        v[b + 1] -= k;
+    }
+
+    long max = 0;
+    long x = 0;
+    for (int i = 0; i <= n; ++i) {
+        x += v[i];
+        if (x > max) max = x;
     }
 
     return max;
