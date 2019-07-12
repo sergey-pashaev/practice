@@ -6,3 +6,4 @@ endif()
 
 testable(reverse-integer)
 testable(two-sum)
+testable(palindrome-number)
