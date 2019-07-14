@@ -39,6 +39,36 @@
 
 using namespace std;
 
+int roman_to_int2(string s) {
+    int val[26] = {};
+    val['I' - 'A'] = 1;
+    val['V' - 'A'] = 5;
+    val['X' - 'A'] = 10;
+    val['L' - 'A'] = 50;
+    val['C' - 'A'] = 100;
+    val['D' - 'A'] = 500;
+    val['M' - 'A'] = 1000;
+
+    const int n = s.size();
+    int v = 0;
+
+    vector<int> ints(n, 0);
+    for (int i = 0; i < n; ++i) {
+        ints[i] = val[static_cast<int>(s[i] - 'A')];
+    }
+
+    for (int i = 0; i < n - 1; ++i) {
+        if (ints[i] < ints[i + 1]) {
+            // IV, IX, XL, XC, CD, DM
+            ints[i] = -ints[i];
+        }
+        v += ints[i];
+    }
+
+    v += ints[n - 1];
+    return v;
+}
+
 int roman_to_int(string s) {
     const int n = s.size();
     int v = 0;
@@ -102,16 +132,16 @@ int roman_to_int(string s) {
 }
 
 TEST_CASE("roman to integer") {
-    REQUIRE(roman_to_int("I") == 1);
-    REQUIRE(roman_to_int("II") == 2);
-    REQUIRE(roman_to_int("III") == 3);
-    REQUIRE(roman_to_int("IV") == 4);
-    REQUIRE(roman_to_int("V") == 5);
-    REQUIRE(roman_to_int("VI") == 6);
-    REQUIRE(roman_to_int("IX") == 9);
-    REQUIRE(roman_to_int("X") == 10);
-    REQUIRE(roman_to_int("XI") == 11);
-    REQUIRE(roman_to_int("XII") == 12);
-    REQUIRE(roman_to_int("LVIII") == 58);
-    REQUIRE(roman_to_int("MCMXCIV") == 1994);
+    REQUIRE(roman_to_int2("I") == 1);
+    REQUIRE(roman_to_int2("II") == 2);
+    REQUIRE(roman_to_int2("III") == 3);
+    REQUIRE(roman_to_int2("IV") == 4);
+    REQUIRE(roman_to_int2("V") == 5);
+    REQUIRE(roman_to_int2("VI") == 6);
+    REQUIRE(roman_to_int2("IX") == 9);
+    REQUIRE(roman_to_int2("X") == 10);
+    REQUIRE(roman_to_int2("XI") == 11);
+    REQUIRE(roman_to_int2("XII") == 12);
+    REQUIRE(roman_to_int2("LVIII") == 58);
+    REQUIRE(roman_to_int2("MCMXCIV") == 1994);
 }
