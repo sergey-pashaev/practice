@@ -10,12 +10,12 @@
 namespace psv {
 
 template <typename Func>
-bool is_sorted(std::size_t size, Func f) {
+bool is_sorted(std::size_t size, Func f, int max = 1000) {
     std::vector<int> v;
 
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<int> dist(1, 1000);
+    std::uniform_int_distribution<int> dist(1, max);
 
     std::chrono::milliseconds sum{0};
     const int runs = 3;
