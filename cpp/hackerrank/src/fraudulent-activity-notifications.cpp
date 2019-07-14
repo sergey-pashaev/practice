@@ -33,42 +33,63 @@
 
 #include <catch2/catch.hpp>
 
-#include <algorithm>
-#include <deque>
 #include <vector>
 
 using namespace std;
 
-double median(const deque<int>& dq) {
-    vector<int> v(dq.begin(), dq.end());
-    sort(v.begin(), v.end());
-    int n = v.size();
-    return (n % 2 == 0 ? (v[n / 2] + v[n / 2 - 1]) / 2.0 : v[n / 2]);
+double median(vector<int>& count, int d) {
+    int m1 = -1;
+    int m2 = -1;
+    if (d % 2 == 0) {
+        for (int j = 0, sum = 0; j < 201; ++j) {
+            sum += count[j];
+            if (m1 < 0 && sum >= d / 2) {
+                m1 = j;
+            }
+
+            if (m2 < 0 && sum >= d / 2 + 1) {
+                m2 = j;
+                break;
+            }
+        }
+    } else {
+        for (int j = 0, sum = 0; j < 201; ++j) {
+            sum += count[j];
+            if (sum > d / 2) {
+                m1 = m2 = j;
+                break;
+            }
+        }
+    }
+
+    return (m1 + m2) / 2.0;
 }
 
-int notifications(vector<int> expenditure, int d) {
-    deque<int> tracking(expenditure.begin(), expenditure.begin() + d);
+int notifications(vector<int> exp, int d) {
+    vector<int> count(201, 0);
+    // use counting sort for expected range of numbers
+    for (int i = 0; i < d; ++i) {
+        count[exp[i]]++;
+    }
 
     int notifications = 0;
-    const int n = expenditure.size();
+    const int n = exp.size();
     for (int i = d; i < n; ++i) {
-        // calc median
-        double m = median(tracking);
+        double m = median(count, d);
 
-        // check if current spends trigger notification
-        if (expenditure[i] >= m * 2) {
+        if (exp[i] >= m * 2) {
             ++notifications;
         }
 
-        // add current to tracking
-        tracking.pop_front();
-        tracking.push_back(expenditure[i]);
+        count[exp[i]]++;
+        count[exp[i - d]]--;
     }
 
     return notifications;
 }
 
 TEST_CASE("fraudulent-activity-notifications") {
+    REQUIRE(notifications({10, 20, 30, 40, 50}, 3) == 1);
     REQUIRE(notifications({1, 2, 3, 4, 4}, 4) == 0);
     REQUIRE(notifications({2, 3, 4, 2, 3, 6, 8, 4, 5}, 5) == 2);
 }
