@@ -1,3 +1,6 @@
+#ifndef PSV_TST_H
+#define PSV_TST_H
+
 #include <string>
 
 namespace psv {
@@ -97,3 +100,5 @@ class TernarySearchTree {
 };
 
 }  // namespace psv
+
+#endif /* PSV_TST_H */

@@ -1,3 +1,6 @@
+#ifndef PSV_TRIE_H
+#define PSV_TRIE_H
+
 #include <array>
 #include <string>
 
@@ -70,3 +73,5 @@ class TrieRWays {
 };
 
 }  // namespace psv
+
+#endif /* PSV_TRIE_H */

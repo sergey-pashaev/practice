@@ -1,5 +1,5 @@
-#ifndef CIRCULAR_BUFFER_H
-#define CIRCULAR_BUFFER_H
+#ifndef PSV_CIRCULAR_BUFFER_H
+#define PSV_CIRCULAR_BUFFER_H
 
 #include <cstddef>
 #include <memory>
@@ -65,4 +65,4 @@ class CircularBuffer {
 
 }  // namespace psv
 
-#endif /* CIRCULAR_BUFFER_H */
+#endif /* PSV_CIRCULAR_BUFFER_H */
