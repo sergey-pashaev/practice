@@ -31,17 +31,15 @@ conan_basic_setup(NO_OUTPUT_DIRS)
 
 # functions
 function(runnable NAME)
-  add_executable("${NAME}" "${NAME}.cpp")
+  add_executable("${PROJECT_NAME}-${NAME}" "${NAME}.cpp")
+  set_target_properties("${PROJECT_NAME}-${NAME}" PROPERTIES OUTPUT_NAME "${NAME}")
 endfunction()
 
 function(testable NAME)
-  add_executable("${NAME}" "${NAME}.cpp")
-  target_link_libraries("${NAME}" PRIVATE catch2)
-  add_test(NAME "${NAME}" COMMAND "${NAME}")
-endfunction()
-
-function(runnable NAME)
-  add_executable("${NAME}" "${NAME}.cpp")
+  add_executable("${PROJECT_NAME}-${NAME}" "${NAME}.cpp")
+  target_link_libraries("${PROJECT_NAME}-${NAME}" PRIVATE catch2)
+  set_target_properties("${PROJECT_NAME}-${NAME}" PROPERTIES OUTPUT_NAME "${NAME}")
+  add_test(NAME "${PROJECT_NAME}-${NAME}" COMMAND "${NAME}")
 endfunction()
 
 # subprojects

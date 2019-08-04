@@ -15,7 +15,7 @@ testable(ex.8)
 testable(ex.9)
 
 testable(ex.10)
-target_link_libraries(ex.10 PRIVATE pthread)
+target_link_libraries(dcp-ex.10 PRIVATE pthread) # TODO: add link targets as args to testable
 
 testable(ex.11)
 testable(ex.12)
