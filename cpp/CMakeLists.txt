@@ -40,6 +40,10 @@ function(testable NAME)
   add_test(NAME "${NAME}" COMMAND "${NAME}")
 endfunction()
 
+function(runnable NAME)
+  add_executable("${NAME}" "${NAME}.cpp")
+endfunction()
+
 # subprojects
 add_subdirectory(thirdparty)
 
@@ -56,3 +60,4 @@ add_subdirectory(leetcode)
 add_subdirectory(idiom)
 add_subdirectory(ncpp)
 add_subdirectory(stl)
+add_subdirectory(ya)
