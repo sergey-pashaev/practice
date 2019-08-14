@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.1)
 
+project(stepik.cpp1)
+
 runnable(ex.2.2.8)
 runnable(ex.2.2.10)
 runnable(ex.2.3.9)
