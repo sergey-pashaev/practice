@@ -9,7 +9,7 @@ cd "${0%/*}/.."
 mkdir -p build/ && cd build/
 export CC=clang
 export CXX=clang++
-conan install .. --build=missing --profile=../conan/clang8
+conan install .. --build=missing --profile=../conan/clang9
 cmake $@ ..
 cmake --build .
 cd ../
