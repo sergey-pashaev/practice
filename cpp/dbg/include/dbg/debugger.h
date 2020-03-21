@@ -24,10 +24,14 @@ class Debugger {
     // Commands:
     void ContinueExecution();
     void SetBreakpoint(std::intptr_t addr);
+    void StepOverBreakpoint();
 
     void DumpRegisters();
     void ReadRegister(const std::string& name);
     void WriteRegister(const std::string& name, std::uint64_t value);
+
+    std::uint64_t GetPC();
+    void SetPC(std::uint64_t pc);
 
     void ReadMemory(std::uint64_t addr);
     void WriteMemory(std::uint64_t addr, std::uint64_t value);

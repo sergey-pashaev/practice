@@ -49,6 +49,7 @@ void Debugger::WaitDebugee() {
 }
 
 void Debugger::ContinueExecution() {
+    StepOverBreakpoint();
     ptrace(PTRACE_CONT, pid_, nullptr, nullptr);
     WaitDebugee();
 }
@@ -58,6 +59,23 @@ void Debugger::SetBreakpoint(std::intptr_t addr) {
     Breakpoint bp(pid_, addr);
     bp.Enable();
     breakpoints_.emplace(addr, bp);
+}
+
+void Debugger::StepOverBreakpoint() {
+    auto prev_pc = GetPC() - 1;
+
+    if (breakpoints_.count(prev_pc)) {
+        auto& bp = breakpoints_[prev_pc];
+
+        if (bp.IsEnabled()) {
+            SetPC(prev_pc);
+
+            bp.Disable();
+            ptrace(PTRACE_SINGLESTEP, pid_, nullptr, nullptr);
+            WaitDebugee();
+            bp.Enable();
+        }
+    }
 }
 
 void Debugger::DumpRegisters() {
@@ -75,6 +93,14 @@ void Debugger::ReadRegister(const std::string& name) {
 void Debugger::WriteRegister(const std::string& name, std::uint64_t value) {
     Register reg = GetRegisterFromName(name);
     SetRegister(pid_, reg, value);
+}
+
+std::uint64_t Debugger::GetPC() {
+    return GetRegister(pid_, Register::rip);
+}
+
+void Debugger::SetPC(std::uint64_t pc) {
+    SetRegister(pid_, Register::rip, pc);
 }
 
 void Debugger::ReadMemory(std::uint64_t addr) {
