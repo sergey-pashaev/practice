@@ -77,6 +77,16 @@ void Debugger::WriteRegister(const std::string& name, std::uint64_t value) {
     SetRegister(pid_, reg, value);
 }
 
+void Debugger::ReadMemory(std::uint64_t addr) {
+    auto value = ptrace(PTRACE_PEEKDATA, pid_, addr, nullptr);
+    std::cout << "0x" << std::setfill('0') << std::setw(16) << std::hex << value
+              << '\n';
+}
+
+void Debugger::WriteMemory(std::uint64_t addr, std::uint64_t value) {
+    ptrace(PTRACE_POKEDATA, pid_, addr, value);
+}
+
 // Return true if debugger process should stop.
 Debugger::Status Debugger::HandleInput(const std::string& line) {
     auto args = split(line, ' ');
@@ -87,7 +97,7 @@ Debugger::Status Debugger::HandleInput(const std::string& line) {
         ContinueExecution();
     } else if (is_prefix(cmd, "break")) {
         std::string addr{args[1], 2};
-        SetBreakpoint(std::stol(addr, 0, 16));
+        SetBreakpoint(std::stoull(addr, 0, 16));
     } else if (is_prefix(cmd, "register")) {
         auto sub_cmd = args[1];
         if (is_prefix(sub_cmd, "dump")) {
@@ -98,7 +108,19 @@ Debugger::Status Debugger::HandleInput(const std::string& line) {
         } else if (is_prefix(sub_cmd, "write")) {
             std::string reg {args[2]};
             std::string val {args[3], 2}; //assume 0xVAL
-            WriteRegister(reg, std::stol(val, 0, 16));
+            WriteRegister(reg, std::stoull(val, 0, 16));
+        } else {
+            std::cout << "Unknown sub-command\n";
+        }
+    } else if (is_prefix(cmd, "memory")) {
+        auto sub_cmd = args[1];
+        if (is_prefix(sub_cmd, "read")) {
+            std::string addr {args[2], 2}; //assume 0xADDR
+            ReadMemory(std::stoull(addr, 0, 16));
+        } else if (is_prefix(sub_cmd, "write")) {
+            std::string addr {args[2], 2}; //assume 0xADDR
+            std::string val {args[3], 2}; //assume 0xVAL
+            WriteMemory(std::stoull(addr, 0, 16), std::stoull(val, 0, 16));
         } else {
             std::cout << "Unknown sub-command\n";
         }

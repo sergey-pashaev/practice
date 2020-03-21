@@ -24,9 +24,13 @@ class Debugger {
     // Commands:
     void ContinueExecution();
     void SetBreakpoint(std::intptr_t addr);
+
     void DumpRegisters();
     void ReadRegister(const std::string& name);
     void WriteRegister(const std::string& name, std::uint64_t value);
+
+    void ReadMemory(std::uint64_t addr);
+    void WriteMemory(std::uint64_t addr, std::uint64_t value);
 
     // Helpers:
     void WaitDebugee();
