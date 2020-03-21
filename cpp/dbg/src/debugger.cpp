@@ -1,5 +1,6 @@
 #include <dbg/debugger.h>
 
+#include <iomanip>
 #include <iostream>
 #include <cassert>
 
@@ -7,6 +8,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+#include <dbg/registers.h>
 #include <dbg/utils.h>
 
 void Debugger::TracerMain(pid_t pid, int, char* argv[]) {
@@ -58,6 +60,23 @@ void Debugger::SetBreakpoint(std::intptr_t addr) {
     breakpoints_.emplace(addr, bp);
 }
 
+void Debugger::DumpRegisters() {
+    for (const auto& rdescriptor : kRegisterDescriptors) {
+        ReadRegister(rdescriptor.name);
+    }
+}
+
+void Debugger::ReadRegister(const std::string& name) {
+    Register reg = GetRegisterFromName(name);
+    std::cout << "0x" << std::setfill('0') << std::setw(16) << std::hex
+              << GetRegister(pid_, reg) << ' ' << name << '\n';
+}
+
+void Debugger::WriteRegister(const std::string& name, std::uint64_t value) {
+    Register reg = GetRegisterFromName(name);
+    SetRegister(pid_, reg, value);
+}
+
 // Return true if debugger process should stop.
 Debugger::Status Debugger::HandleInput(const std::string& line) {
     auto args = split(line, ' ');
@@ -69,11 +88,24 @@ Debugger::Status Debugger::HandleInput(const std::string& line) {
     } else if (is_prefix(cmd, "break")) {
         std::string addr{args[1], 2};
         SetBreakpoint(std::stol(addr, 0, 16));
+    } else if (is_prefix(cmd, "register")) {
+        auto sub_cmd = args[1];
+        if (is_prefix(sub_cmd, "dump")) {
+            DumpRegisters();
+        } else if (is_prefix(sub_cmd, "read")) {
+            std::string reg {args[2]};
+            ReadRegister(reg);
+        } else if (is_prefix(sub_cmd, "write")) {
+            std::string reg {args[2]};
+            std::string val {args[3], 2}; //assume 0xVAL
+            WriteRegister(reg, std::stol(val, 0, 16));
+        } else {
+            std::cout << "Unknown sub-command\n";
+        }
     } else if (is_prefix(cmd, "quit")) {
         return Status::stop;
     } else {
         std::cout << "Unknown command\n";
-        return Status::run;
     }
 
     return Status::run;
