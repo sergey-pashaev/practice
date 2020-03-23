@@ -49,6 +49,7 @@ struct RegisterDescriptor {
 
 extern const std::array<RegisterDescriptor, kRegistersCount> kRegisterDescriptors;
 
+std::string RegisterLongestName();
 void SetRegister(pid_t pid, Register reg, std::uint64_t value);
 std::uint64_t GetRegister(pid_t pid, Register reg);
 std::uint64_t GetRegisterByDwarf(pid_t pid, int reg);

@@ -54,6 +54,16 @@ std::uint64_t* RegisterPtr(user_regs_struct& regs, Register reg) {
 
 }  // namespace
 
+std::string RegisterLongestName() {
+    std::string longest = kRegisterDescriptors[0].name;
+    for (auto& rdescriptor : kRegisterDescriptors) {
+        if (rdescriptor.name.size() > longest.size()) {
+            longest = rdescriptor.name;
+        }
+    }
+    return longest;
+}
+
 void SetRegister(pid_t pid, Register reg, std::uint64_t value) {
     user_regs_struct regs;
     ptrace(PTRACE_GETREGS, pid, nullptr, &regs);
