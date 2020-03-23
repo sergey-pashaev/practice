@@ -12,6 +12,7 @@
 
 #include <dbg/registers.h>
 #include <dbg/utils.h>
+#include <dbg/dwarf_reader.h>
 
 void Debugger::TracerMain(pid_t pid, int, char* argv[]) {
     const char* binary = argv[1];
@@ -61,6 +62,8 @@ void Debugger::SetBreakpoint(std::intptr_t addr) {
     Breakpoint bp(pid_, addr);
     bp.Enable();
     breakpoints_.emplace(addr, bp);
+
+    DwarfReader dr(binary_);
 }
 
 void Debugger::StepOverBreakpoint() {
