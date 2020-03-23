@@ -30,6 +30,8 @@ class Debugger {
     void ReadRegister(const std::string& name);
     void WriteRegister(const std::string& name, std::uint64_t value);
 
+    void Backtrace(std::uint64_t frames);
+
     std::uint64_t GetPC();
     void SetPC(std::uint64_t pc);
 

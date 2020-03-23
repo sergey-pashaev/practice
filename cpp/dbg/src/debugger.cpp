@@ -8,6 +8,7 @@
 #include <unistd.h>
 
 #include <fmt/printf.h>
+#include <libunwind-ptrace.h>
 
 #include <dbg/registers.h>
 #include <dbg/utils.h>
@@ -95,6 +96,42 @@ void Debugger::WriteRegister(const std::string& name, std::uint64_t value) {
     SetRegister(pid_, reg, value);
 }
 
+void Debugger::Backtrace(std::uint64_t frames) {
+    unw_addr_space_t as = unw_create_addr_space(&_UPT_accessors, 0);
+    void* context = _UPT_create(pid_);
+    unw_cursor_t cursor;
+    if (unw_init_remote(&cursor, as, context) != 0) {
+        fmt::printf("err: cannot initialize cursor for remote unwinding\n");
+        return;
+    }
+
+    int frame = 0;
+    do {
+        unw_word_t offset, pc;
+        char sym[4096];
+        if (unw_get_reg(&cursor, UNW_REG_IP, &pc)) {
+            fmt::printf("err: cannot read program counter\n");
+        }
+
+        fmt::printf("[%02d] 0x%016x: ", frame, pc);
+
+        if (unw_get_proc_name(&cursor, sym, sizeof(sym), &offset) == 0) {
+            fmt::printf("%s + 0x%x\n", sym, offset);
+        } else {
+            fmt::printf("???\n");
+        }
+
+        ++frame;
+
+        if (frame >= frames) {
+            break;
+        }
+    } while (unw_step(&cursor) > 0);
+
+    unw_destroy_addr_space(as);
+    _UPT_destroy(context);
+}
+
 std::uint64_t Debugger::GetPC() {
     return GetRegister(pid_, Register::rip);
 }
@@ -149,6 +186,12 @@ Debugger::Status Debugger::HandleInput(const std::string& line) {
         } else {
             fmt::printf("Unknown sub-command\n");
         }
+    } else if (is_prefix(cmd, "backtrace")) {
+        int frames = 16;
+        if (args.size() > 1) {
+            frames = std::stoull(std::string{args[1]}, 0, 10);
+        }
+        Backtrace(frames);
     } else if (is_prefix(cmd, "quit")) {
         return Status::stop;
     } else {
