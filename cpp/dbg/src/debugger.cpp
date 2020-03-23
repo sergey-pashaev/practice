@@ -1,12 +1,13 @@
 #include <dbg/debugger.h>
 
-#include <iomanip>
 #include <iostream>
 #include <cassert>
 
 #include <sys/ptrace.h>
 #include <sys/wait.h>
 #include <unistd.h>
+
+#include <fmt/printf.h>
 
 #include <dbg/registers.h>
 #include <dbg/utils.h>
@@ -34,7 +35,7 @@ void Debugger::Run() {
 
     // Process user input.
     for (std::string line;
-         std::cout << "dbg> ", std::getline(std::cin, line);) {
+         fmt::printf("dbg> "), std::getline(std::cin, line);) {
         if (HandleInput(line) == Status::stop) {
             break;
         }
@@ -55,7 +56,7 @@ void Debugger::ContinueExecution() {
 }
 
 void Debugger::SetBreakpoint(std::intptr_t addr) {
-    std::cout << "Set breakpoint at 0x" << std::hex << addr << '\n';
+    fmt::printf("Set breakpoint at %#x\n", addr);
     Breakpoint bp(pid_, addr);
     bp.Enable();
     breakpoints_.emplace(addr, bp);
@@ -86,8 +87,7 @@ void Debugger::DumpRegisters() {
 
 void Debugger::ReadRegister(const std::string& name) {
     Register reg = GetRegisterFromName(name);
-    std::cout << "0x" << std::setfill('0') << std::setw(16) << std::hex
-              << GetRegister(pid_, reg) << ' ' << name << '\n';
+    fmt::printf("0x%016x %s\n", GetRegister(pid_, reg), name);
 }
 
 void Debugger::WriteRegister(const std::string& name, std::uint64_t value) {
@@ -105,8 +105,7 @@ void Debugger::SetPC(std::uint64_t pc) {
 
 void Debugger::ReadMemory(std::uint64_t addr) {
     auto value = ptrace(PTRACE_PEEKDATA, pid_, addr, nullptr);
-    std::cout << "0x" << std::setfill('0') << std::setw(16) << std::hex << value
-              << '\n';
+    fmt::printf("0x%016x: 0x%016x\n", addr, value);
 }
 
 void Debugger::WriteMemory(std::uint64_t addr, std::uint64_t value) {
@@ -136,7 +135,7 @@ Debugger::Status Debugger::HandleInput(const std::string& line) {
             std::string val {args[3], 2}; //assume 0xVAL
             WriteRegister(reg, std::stoull(val, 0, 16));
         } else {
-            std::cout << "Unknown sub-command\n";
+            fmt::printf("Unknown sub-command\n");
         }
     } else if (is_prefix(cmd, "memory")) {
         auto sub_cmd = args[1];
@@ -148,12 +147,12 @@ Debugger::Status Debugger::HandleInput(const std::string& line) {
             std::string val {args[3], 2}; //assume 0xVAL
             WriteMemory(std::stoull(addr, 0, 16), std::stoull(val, 0, 16));
         } else {
-            std::cout << "Unknown sub-command\n";
+            fmt::printf("Unknown sub-command\n");
         }
     } else if (is_prefix(cmd, "quit")) {
         return Status::stop;
     } else {
-        std::cout << "Unknown command\n";
+        fmt::printf("Unknown command\n");
     }
 
     return Status::run;

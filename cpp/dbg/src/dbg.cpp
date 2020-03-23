@@ -1,15 +1,15 @@
-#include <iostream>
-
 #include <errno.h>       // errno
 #include <string.h>      // strerror
 #include <sys/ptrace.h>  // ptrace
 #include <sys/types.h>   // pid_t
 #include <unistd.h>      // fork
 
+#include <fmt/printf.h>
+
 #include <dbg/debugger.h>
 
 int usage(const char* bin) {
-    std::cout << "Usage: " << bin << " <program>\n";
+    fmt::printf("Usage: %s <program>\n", bin);
     return 1;
 }
 
@@ -20,7 +20,7 @@ int main(int argc, char* argv[]) {
 
     pid_t pid = fork();
     if (pid == -1) {
-        std::cerr << strerror(errno) << "\n";
+        fmt::printf("%s\n", strerror(errno));
         return errno;
     }
 
