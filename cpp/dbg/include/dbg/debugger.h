@@ -8,6 +8,7 @@
 #include <sys/types.h>
 
 #include <dbg/breakpoint.h>
+#include <dbg/dwarf_reader.h>
 
 class Debugger {
    public:
@@ -48,6 +49,7 @@ class Debugger {
     std::string binary_;
     pid_t pid_;
     std::unordered_map<std::intptr_t, Breakpoint> breakpoints_;
+    DwarfReader dwarf_reader_;
 };
 
 #endif /* DEBUGGER_H */

@@ -12,7 +12,6 @@
 
 #include <dbg/registers.h>
 #include <dbg/utils.h>
-#include <dbg/dwarf_reader.h>
 
 void Debugger::TracerMain(pid_t pid, int, char* argv[]) {
     const char* binary = argv[1];
@@ -30,7 +29,7 @@ void Debugger::TraceeMain(pid_t pid, int, char* argv[]) {
 }
 
 Debugger::Debugger(std::string binary, pid_t pid)
-    : binary_{std::move(binary)}, pid_{pid} {}
+    : binary_{std::move(binary)}, pid_{pid}, dwarf_reader_{binary_} {}
 
 void Debugger::Run() {
     WaitDebugee();
@@ -62,8 +61,6 @@ void Debugger::SetBreakpoint(std::intptr_t addr) {
     Breakpoint bp(pid_, addr);
     bp.Enable();
     breakpoints_.emplace(addr, bp);
-
-    DwarfReader dr(binary_);
 }
 
 void Debugger::StepOverBreakpoint() {
