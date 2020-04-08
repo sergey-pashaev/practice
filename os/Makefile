@@ -1,7 +1,7 @@
 all: boot
 
 boot.bin:
-	nasm boot-sector.asm -f bin -o boot-sector.bin
+	nasm boot_sector.asm -f bin -o boot_sector.bin
 
 boot: boot.bin
-	qemu-system-i386 -drive format=raw,file=boot-sector.bin
+	qemu-system-i386 -drive format=raw,file=boot_sector.bin

@@ -1,4 +1,4 @@
-;; boot-sector.asm
+;; boot_sector.asm
 [org 0x7c00]                ; set bios boot sector offset globally
 
     ; code
@@ -10,7 +10,7 @@
 
     jmp $                       ; infinite loop
 
-%include "print-string.asm"
+%include "print_string.asm"
 
     ; data
 HELLO_MSG:
