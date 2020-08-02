@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.1)
 
+project(cpp)
+
 # global definitions
 add_definitions(-Wall)
 add_definitions(-Wextra)
