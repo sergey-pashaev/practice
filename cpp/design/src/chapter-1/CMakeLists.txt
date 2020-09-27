@@ -1,0 +1,5 @@
+cmake_minimum_required(VERSION 3.1)
+
+add_example(static_assert)
+add_example(interface_adapter)
+add_example(select_type)

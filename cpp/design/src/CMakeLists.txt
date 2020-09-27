@@ -6,6 +6,4 @@ function(add_example FILE)
   add_test(NAME "${FILE}" COMMAND "${FILE}")
 endfunction()
 
-add_example(static_assert)
-add_example(interface_adapter)
-add_example(select_type)
+add_subdirectory(chapter-1)
