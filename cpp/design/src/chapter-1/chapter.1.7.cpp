@@ -2,8 +2,8 @@
 
 #include <utils/utils.h>
 
-#include "chapter.1.5.h"
-#include "chapter.1.7.h"
+#include <chapter-1/chapter.1.5.h>
+#include <chapter-1/chapter.1.7.h>
 
 // Chapter 1.7
 // You should protect your policy destructor.

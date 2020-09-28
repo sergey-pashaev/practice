@@ -3,7 +3,7 @@
 
 #include <memory>
 
-#include "creator.h"
+#include <chapter-1/creator.h>
 
 // Chapter 1.5
 // Usage of creator class as template argument

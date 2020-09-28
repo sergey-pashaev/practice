@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include "creator.h"
+#include <chapter-1/creator.h>
 
 TEST_CASE("OpNewCreator") {
     OpNewCreator<int> creator;

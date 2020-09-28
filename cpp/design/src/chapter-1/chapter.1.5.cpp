@@ -1,6 +1,6 @@
 #include <catch2/catch.hpp>
 
-#include "chapter.1.5.h"
+#include <chapter-1/chapter.1.5.h>
 
 namespace c_1_5 {
 
