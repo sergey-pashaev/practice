@@ -11,7 +11,7 @@ namespace c_1_7 {
 
 using Widget = c_1_5::Widget;
 
-TEST_CASE("c.1.7.WidgetManager creator dtor access allowed") {
+TEST_CASE("WidgetManager creator dtor access allowed") {
     using MyWidgetManager = c_1_5_1::WidgetManager<PrototypeCreator>;
     MyWidgetManager m;
     PrototypeCreator<Widget>* creator = &m;
@@ -23,7 +23,7 @@ TEST_CASE("c.1.7.WidgetManager creator dtor access allowed") {
 }
 
 #ifdef PROTECTED_DTOR
-TEST_CASE("c.1.7.WidgetManager creator dtor access forbidden") {
+TEST_CASE("WidgetManager creator dtor access forbidden") {
     using MyWidgetManager = c151::WidgetManager<OpNewCreator>;
     MyWidgetManager m;
     OpNewCreator<Widget>* creator = &m;

@@ -4,7 +4,7 @@
 
 namespace c_1_5 {
 
-TEST_CASE("c.1.5.WidgetManager") {
+TEST_CASE("WidgetManager creates Widget only") {
     using MyWidgetManager = WidgetManager<OpNewCreator<Widget>>;
     MyWidgetManager m;
     REQUIRE(m.GetWidget().value == 42);
@@ -14,7 +14,7 @@ TEST_CASE("c.1.5.WidgetManager") {
 
 namespace c_1_5_1 {
 
-TEST_CASE("c.1.5.1.WidgetManager") {
+TEST_CASE("WidgetManager creates Gadgets as well") {
     using MyWidgetManager = WidgetManager<OpNewCreator>;
     MyWidgetManager m;
     REQUIRE(m.GetWidget().value == 42);
