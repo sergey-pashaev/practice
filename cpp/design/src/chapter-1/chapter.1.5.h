@@ -10,7 +10,7 @@
 namespace c_1_5 {
 
 struct Widget {
-    Widget(int v = 42) : value{v} {}
+    explicit Widget(int v = 42) : value{v} {}
     Widget* Clone() const { return new Widget(value); }
 
     int value;
@@ -20,6 +20,7 @@ template <class CreationPolicy>
 class WidgetManager : public CreationPolicy {
    public:
     WidgetManager() : widget_{this->Create()} {}
+    const Widget& GetWidget() const { return *widget_; }
 
    private:
     std::unique_ptr<Widget> widget_;
@@ -39,6 +40,8 @@ template <template <class Created> class CreationPolicy>
 class WidgetManager : public CreationPolicy<Widget> {
    public:
     WidgetManager() : widget_{this->Create()} {}
+    const Widget& GetWidget() const { return *widget_; }
+
     void DoSomething() {
         // Now we can create gadgets also.
         std::unique_ptr<Gadget> g{CreationPolicy<Gadget>().Create()};
