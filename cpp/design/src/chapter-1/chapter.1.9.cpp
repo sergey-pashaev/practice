@@ -7,24 +7,60 @@
 
 namespace c_1_9 {
 
-using Widget = c_1_5::Widget;
+class Widget {
+   public:
+    Widget() = default;
+    explicit Widget(int v) : value_{v} {}
+    void Increment() { ++value_; }
+    int Value() const { return value_; }
 
-TEST_CASE("NoChecking, NoSynchronization>") {
+   private:
+    int value_ = 0;
+};
+
+TEST_CASE("NoChecking") {
     using MyPtr = SmartPtr<Widget, NoChecking, NoSynchronization>;
-    MyPtr ptr(new Widget(5));
-    REQUIRE(ptr->value == 5);
+
+    SECTION("Valid pointer to object") {
+        MyPtr ptr(new Widget(5));
+        REQUIRE(ptr->Value() == 5);
+    }
+
+#ifdef NO_CHECKING_NULLPTR
+    SECTION("Null pointer") {
+        MyPtr ptr(nullptr);
+        REQUIRE(ptr->Value() == 0);
+    }
+#endif
 }
 
-TEST_CASE("EnforceNotNull, NoSynchronization") {
+TEST_CASE("EnforceNotNull") {
     using MyPtr = SmartPtr<Widget, EnforceNotNull, NoSynchronization>;
-    MyPtr ptr(nullptr);
-    REQUIRE_THROWS_AS(ptr->value, EnforceNotNull<Widget>::NullPointerException);
+
+    SECTION("Valid pointer to object") {
+        MyPtr ptr(new Widget(5));
+        REQUIRE(ptr->Value() == 5);
+    }
+
+    SECTION("Null pointer") {
+        MyPtr ptr(nullptr);
+        REQUIRE_THROWS_AS(ptr->Value(),
+                          EnforceNotNull<Widget>::NullPointerException);
+    }
 }
 
-TEST_CASE("EnsureNotNull, NoSynchronization") {
+TEST_CASE("EnsureNotNull") {
     using MyPtr = SmartPtr<Widget, EnsureNotNull, NoSynchronization>;
-    MyPtr ptr(nullptr);
-    REQUIRE(ptr.operator->() == reinterpret_cast<Widget*>(42));
+
+    SECTION("Valid pointer to object") {
+        MyPtr ptr(new Widget(5));
+        REQUIRE(ptr->Value() == 5);
+    }
+
+    SECTION("Null pointer") {
+        MyPtr ptr(nullptr);
+        REQUIRE(ptr->Value() == 0);
+    }
 }
 
 }  // namespace c_1_9

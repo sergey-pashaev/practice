@@ -29,7 +29,7 @@ struct EnsureNotNull {
         if (!ptr) ptr = GetDefaultValue();
     }
 
-    static T* GetDefaultValue() { return reinterpret_cast<T*>(42); };
+    static T* GetDefaultValue() { return new T(); };
 };
 
 // ThreadingModel<T>:
@@ -66,6 +66,10 @@ class SmartPtr : public CheckingPolicy<T>, ThreadingModel<T> {
         typename ThreadingModel<SmartPtr>::Lock guard(*this);
         CheckingPolicy<T>::Check(pointee_);
         return pointee_;
+    }
+
+    ~SmartPtr() {
+        if (pointee_) delete pointee_;
     }
 
    private:
