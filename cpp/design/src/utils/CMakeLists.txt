@@ -7,7 +7,7 @@ function(expect_segfault FILE TESTNAME)
   set(name "runtime-failure.${FILE}.${TESTNAME}")
   set(test_name "test.${name}")
   add_executable("${name}" "${FILE}.cpp")
-  target_link_libraries("${name}" PRIVATE catch2)
+  target_link_libraries("${name}" PRIVATE catch2 pthread)
   target_compile_definitions("${name}" PRIVATE "${TESTNAME}")
   add_test(NAME "${test_name}"
     COMMAND $<TARGET_FILE:expect_segfault> $<TARGET_FILE:${name}>
@@ -19,7 +19,7 @@ function(expect_compilation_failure FILE TESTNAME)
   set(name "compilation-failure.${FILE}.${TESTNAME}")
   set(test_name "test.${name}")
   add_executable("${name}" "${FILE}.cpp")
-  target_link_libraries("${name}" PRIVATE catch2)
+  target_link_libraries("${name}" PRIVATE catch2 pthread)
   set_target_properties("${name}" PROPERTIES
     EXCLUDE_FROM_ALL TRUE
     EXCLUDE_FROM_DEFAULT_BUILD TRUE)
