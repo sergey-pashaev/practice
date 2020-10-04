@@ -11,6 +11,17 @@
 // Multiple strategies example.
 namespace c_1_9 {
 
+class Widget {
+   public:
+    Widget() = default;
+    explicit Widget(int v) : value_{v} {}
+    void Increment() { ++value_; }
+    int Value() const { return value_; }
+
+   private:
+    int value_ = 0;
+};
+
 // CheckingPolicy<T>:
 // void Check(T*)
 template <class T>

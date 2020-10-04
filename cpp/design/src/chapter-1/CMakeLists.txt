@@ -10,6 +10,7 @@ add_example(chapter.1.8)
 expect_compilation_failure(chapter.1.8 UNSUPPORTED_CREATION_POLICY_API)
 add_example(chapter.1.9)
 expect_segfault(chapter.1.9 NO_CHECKING_NULLPTR)
+add_example(chapter.1.10)
 
 add_example(static_assert)
 add_example(interface_adapter)

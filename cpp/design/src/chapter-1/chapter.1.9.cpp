@@ -16,17 +16,6 @@ std::map<T*, std::unique_ptr<std::mutex>> MultiThreadSafe<T>::Lock::locks_ = {};
 template <class T>
 std::mutex MultiThreadSafe<T>::Lock::map_mutex_;
 
-class Widget {
-   public:
-    Widget() = default;
-    explicit Widget(int v) : value_{v} {}
-    void Increment() { ++value_; }
-    int Value() const { return value_; }
-
-   private:
-    int value_ = 0;
-};
-
 TEST_CASE("NoChecking") {
     using MyPtr = SmartPtr<Widget, NoChecking, NoSynchronization>;
 
