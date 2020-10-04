@@ -10,6 +10,12 @@
 
 namespace c_1_9 {
 
+template <class T>
+std::map<T*, std::unique_ptr<std::mutex>> MultiThreadSafe<T>::Lock::locks_ = {};
+
+template <class T>
+std::mutex MultiThreadSafe<T>::Lock::map_mutex_;
+
 class Widget {
    public:
     Widget() = default;
