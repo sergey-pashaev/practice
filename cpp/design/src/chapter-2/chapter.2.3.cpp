@@ -1,8 +1,10 @@
 #include <catch2/catch.hpp>
 
-#include <iostream>
-#include <memory>
+namespace c_2_3 {
 
+namespace {
+
+// Here we making adapter from Foo::operator() to Interface::Function().
 class Interface {
    public:
     virtual ~Interface() {}
@@ -28,8 +30,12 @@ struct Foo {
     int operator()(int v) { return v; }
 };
 
-TEST_CASE("interface adapter") {
+TEST_CASE("MakeAdapter") {
     Foo foo;
     auto adapter = MakeAdapter(foo, 5);
     REQUIRE(adapter->Function() == 5);
 }
+
+}  // namespace
+
+}  // namespace c_2_3

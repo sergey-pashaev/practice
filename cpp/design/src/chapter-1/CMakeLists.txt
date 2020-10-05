@@ -13,5 +13,4 @@ expect_segfault(chapter.1.9 NO_CHECKING_NULLPTR)
 add_example(chapter.1.10)
 
 add_example(static_assert)
-add_example(interface_adapter)
 add_example(select_type)
