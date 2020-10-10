@@ -35,7 +35,7 @@ endfunction()
 
 function(testable NAME)
   add_executable("${PROJECT_NAME}-${NAME}" "${NAME}.cpp")
-  target_link_libraries("${PROJECT_NAME}-${NAME}" PRIVATE catch2)
+  target_link_libraries("${PROJECT_NAME}-${NAME}" PRIVATE catch2 pthread)
   set_target_properties("${PROJECT_NAME}-${NAME}" PROPERTIES OUTPUT_NAME "${NAME}")
   add_test(NAME "${PROJECT_NAME}-${NAME}" COMMAND "${NAME}")
 endfunction()
