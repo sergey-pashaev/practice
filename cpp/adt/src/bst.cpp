@@ -4,8 +4,6 @@
 
 #include "bst.h"
 
-using namespace std;
-
 TEST_CASE("tst") {
     adt::BinarySearchTree bst;
     bst.Insert(2);
@@ -15,7 +13,7 @@ TEST_CASE("tst") {
     bst.Insert(2);
 
     bst.Traverse([](int lvl, int v) {
-        while (lvl--) cout << ' ';
-        cout << v << '\n';
+        while (lvl--) std::cout << ' ';
+        std::cout << v << '\n';
     });
 }
