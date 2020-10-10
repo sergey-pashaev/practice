@@ -1,11 +1,11 @@
-#ifndef PSV_CIRCULAR_BUFFER_H
-#define PSV_CIRCULAR_BUFFER_H
+#ifndef ADT_CIRCULAR_BUFFER_H
+#define ADT_CIRCULAR_BUFFER_H
 
 #include <cstddef>
 #include <memory>
 #include <stdexcept>
 
-namespace psv {
+namespace adt {
 
 template <typename T>
 class CircularBuffer {
@@ -63,6 +63,6 @@ class CircularBuffer {
     std::size_t w_ = 0;  // idx to write next item
 };
 
-}  // namespace psv
+}  // namespace adt
 
-#endif /* PSV_CIRCULAR_BUFFER_H */
+#endif /* ADT_CIRCULAR_BUFFER_H */

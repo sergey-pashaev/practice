@@ -1,9 +1,9 @@
-#ifndef PSV_TST_H
-#define PSV_TST_H
+#ifndef ADT_TST_H
+#define ADT_TST_H
 
 #include <string>
 
-namespace psv {
+namespace adt {
 
 class TernarySearchTree {
    private:
@@ -99,6 +99,6 @@ class TernarySearchTree {
     Link root_ = nullptr;
 };
 
-}  // namespace psv
+}  // namespace adt
 
-#endif /* PSV_TST_H */
+#endif /* ADT_TST_H */

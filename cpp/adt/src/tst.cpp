@@ -3,7 +3,7 @@
 #include "tst.h"
 
 TEST_CASE("tst") {
-    psv::TernarySearchTree tst;
+    adt::TernarySearchTree tst;
     tst.Insert("hello");
     tst.Insert("hell");
     tst.Insert("jello");

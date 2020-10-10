@@ -1,10 +1,10 @@
-#ifndef PSV_TRIE_H
-#define PSV_TRIE_H
+#ifndef ADT_TRIE_H
+#define ADT_TRIE_H
 
 #include <array>
 #include <string>
 
-namespace psv {
+namespace adt {
 
 template <std::size_t alphabet_size>
 class TrieRWays {
@@ -72,6 +72,6 @@ class TrieRWays {
     Node* root_;
 };
 
-}  // namespace psv
+}  // namespace adt
 
-#endif /* PSV_TRIE_H */
+#endif /* ADT_TRIE_H */

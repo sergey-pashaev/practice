@@ -3,7 +3,7 @@
 #include "circular_buffer.h"
 
 TEST_CASE("circular buffer") {
-    psv::CircularBuffer<int> b(3);
+    adt::CircularBuffer<int> b(3);
 
     REQUIRE(b.Empty());
     REQUIRE(b.Size() == 0);

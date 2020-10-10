@@ -1,5 +1,7 @@
+#ifndef ADT_BST_H
+#define ADT_BST_H
 
-namespace psv {
+namespace adt {
 
 class BinarySearchTree {
    private:
@@ -74,4 +76,6 @@ class BinarySearchTree {
     Link root_ = nullptr;
 };
 
-}  // namespace psv
+}  // namespace adt
+
+#endif /* ADT_BST_H */

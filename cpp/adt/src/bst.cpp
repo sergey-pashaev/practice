@@ -7,7 +7,7 @@
 using namespace std;
 
 TEST_CASE("tst") {
-    psv::BinarySearchTree bst;
+    adt::BinarySearchTree bst;
     bst.Insert(2);
     bst.Insert(1);
     bst.Insert(3);
