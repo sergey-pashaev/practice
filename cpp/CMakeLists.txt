@@ -34,8 +34,7 @@ function(runnable FILE)
   set_target_properties("${name}" PROPERTIES OUTPUT_NAME "${FILE}")
 endfunction()
 
-# TODO: rename to unittest
-function(testable FILE)
+function(unit_test FILE)
   set(name "unit_test.${PROJECT_NAME}-${FILE}")
   add_executable("${name}" "${FILE}.cpp")
   target_link_libraries("${name}" PRIVATE catch2 pthread)

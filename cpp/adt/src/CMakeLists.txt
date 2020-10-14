@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.1)
 
-testable(bst)
-testable(circular_buffer)
-testable(trie)
-testable(tst)
+unit_test(bst)
+unit_test(circular_buffer)
+unit_test(trie)
+unit_test(tst)
