@@ -28,17 +28,20 @@ include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup(NO_OUTPUT_DIRS)
 
 # functions
-function(runnable NAME)
-  add_executable("${PROJECT_NAME}-${NAME}" "${NAME}.cpp")
-  set_target_properties("${PROJECT_NAME}-${NAME}" PROPERTIES OUTPUT_NAME "${NAME}")
+function(runnable FILE)
+  set(name "${PROJECT_NAME}-${FILE}")
+  add_executable("${name}" "${FILE}.cpp")
+  set_target_properties("${name}" PROPERTIES OUTPUT_NAME "${FILE}")
 endfunction()
 
-function(testable NAME)
-  add_executable("${PROJECT_NAME}-${NAME}" "${NAME}.cpp")
-  target_link_libraries("${PROJECT_NAME}-${NAME}" PRIVATE catch2 pthread)
-  set_target_properties("${PROJECT_NAME}-${NAME}" PROPERTIES OUTPUT_NAME "${NAME}")
-  add_test(NAME "${PROJECT_NAME}-${NAME}" COMMAND "${NAME}")
-  set_tests_properties("${PROJECT_NAME}-${NAME}" PROPERTIES LABELS "unit_test")
+# TODO: rename to unittest
+function(testable FILE)
+  set(name "unit_test.${PROJECT_NAME}-${FILE}")
+  add_executable("${name}" "${FILE}.cpp")
+  target_link_libraries("${name}" PRIVATE catch2 pthread)
+  set_target_properties("${name}" PROPERTIES OUTPUT_NAME "${FILE}")
+  add_test(NAME "${name}" COMMAND "${FILE}")
+  set_tests_properties("${name}" PROPERTIES LABELS "unit_test")
 endfunction()
 
 # subprojects
