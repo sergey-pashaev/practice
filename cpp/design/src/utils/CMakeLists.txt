@@ -12,6 +12,7 @@ function(expect_segfault FILE TESTNAME)
   add_test(NAME "${test_name}"
     COMMAND $<TARGET_FILE:expect_segfault> $<TARGET_FILE:${name}>
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+  set_tests_properties("${test_name}" PROPERTIES LABELS "segfault_test")
 endfunction()
 
 # https://stackoverflow.com/questions/30155619/expected-build-failure-tests-in-cmake
@@ -28,4 +29,5 @@ function(expect_compilation_failure FILE TESTNAME)
     COMMAND ${CMAKE_COMMAND} --build . --target "${name}" --config $<CONFIGURATION>
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
   set_tests_properties("${test_name}" PROPERTIES WILL_FAIL TRUE)
+  set_tests_properties("${test_name}" PROPERTIES LABELS "compilation_test")
 endfunction()

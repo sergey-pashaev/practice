@@ -38,6 +38,7 @@ function(testable NAME)
   target_link_libraries("${PROJECT_NAME}-${NAME}" PRIVATE catch2 pthread)
   set_target_properties("${PROJECT_NAME}-${NAME}" PROPERTIES OUTPUT_NAME "${NAME}")
   add_test(NAME "${PROJECT_NAME}-${NAME}" COMMAND "${NAME}")
+  set_tests_properties("${PROJECT_NAME}-${NAME}" PROPERTIES LABELS "unit_test")
 endfunction()
 
 # subprojects
