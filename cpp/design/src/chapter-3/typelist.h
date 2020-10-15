@@ -37,6 +37,29 @@ struct TypeAt<TypeList<Head, Tail>, i> {
     using Result = typename TypeAt<Tail, i - 1>::Result;
 };
 
+// Indexof
+template <class TList, typename T>
+struct IndexOf;
+
+template <typename T>
+struct IndexOf<NullType, T> {
+    enum { value = -1 };
+};
+
+template <class T, class Tail>
+struct IndexOf<TypeList<T, Tail>, T> {
+    enum { value = 0 };
+};
+
+template <class Head, class Tail, typename T>
+struct IndexOf<TypeList<Head, Tail>, T> {
+   private:
+    enum { temp = IndexOf<Tail, T>::value };
+
+   public:
+    enum { value = temp == -1 ? -1 : 1 + temp };
+};
+
 #define TYPELIST_1(T1) TypeList<T1, NullType>
 #define TYPELIST_2(T1, T2) TypeList<T1, TYPELIST_1(T2)>
 #define TYPELIST_3(T1, T2, T3) TypeList<T1, TYPELIST_2(T2, T3)>
