@@ -60,6 +60,30 @@ struct IndexOf<TypeList<Head, Tail>, T> {
     enum { value = temp == -1 ? -1 : 1 + temp };
 };
 
+// Append
+template <class TList, typename T>
+struct Append;
+
+template <>
+struct Append<NullType, NullType> {
+    using Result = NullType;
+};
+
+template <typename T>
+struct Append<NullType, T> {
+    using Result = TypeList<T, NullType>;
+};
+
+template <class Head, class Tail>
+struct Append<NullType, TypeList<Head, Tail>> {
+    using Result = TypeList<Head, Tail>;
+};
+
+template <class Head, class Tail, typename T>
+struct Append<TypeList<Head, Tail>, T> {
+    using Result = TypeList<Head, typename Append<Tail, T>::Result>;
+};
+
 #define TYPELIST_1(T1) TypeList<T1, NullType>
 #define TYPELIST_2(T1, T2) TypeList<T1, TYPELIST_1(T2)>
 #define TYPELIST_3(T1, T2, T3) TypeList<T1, TYPELIST_2(T2, T3)>
