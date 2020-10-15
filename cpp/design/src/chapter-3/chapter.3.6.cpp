@@ -4,7 +4,7 @@
 
 #include <chapter-3/typelist.h>
 
-namespace c_3_2 {
+namespace c_3_6 {
 
 namespace {
 
@@ -18,4 +18,4 @@ TEST_CASE("TypeAt") {
 
 }  // namespace
 
-}  // namespace c_3_2
+}  // namespace c_3_6
