@@ -19,8 +19,8 @@ int main() {
     PRINT_SIZE(signed char);
 
     PRINT_SIZE(wchar_t);
-    PRINT_SIZE(signed wchar_t);
-    PRINT_SIZE(unsigned wchar_t);
+    PRINT_SIZE(/* signed */  wchar_t);
+    PRINT_SIZE(/* unsigned */ wchar_t);
 
     PRINT_SIZE(short)
     PRINT_SIZE(unsigned short)
