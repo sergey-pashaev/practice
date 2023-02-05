@@ -1,7 +1,7 @@
 import unittest
 
-from aoc.y2015.d1p1 import what_floor
-from aoc.y2015.d1p2 import at_basement
+from practice.aoc.y2015.d1p1 import what_floor
+from practice.aoc.y2015.d1p2 import at_basement
 
 
 class Test(unittest.TestCase):
@@ -21,8 +21,8 @@ class Test(unittest.TestCase):
         self.assertEqual(at_basement("()())"), 5)
 
     def test_input(self):
-        with open("tests/y2015/d1.input", "r") as f:
+        with open("tests/aoc/y2015/d1.input", "r") as f:
             for line in f.readlines():
                 print()
-                print("part 1:", what_floor(line))
-                print("part 2:", at_basement(line))
+                print("Day 1, part 1:", what_floor(line))
+                print("Day 1, part 2:", at_basement(line))
