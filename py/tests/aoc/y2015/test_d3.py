@@ -20,6 +20,7 @@ class Test(unittest.TestCase):
     def test_input(self):
         with open("tests/aoc/y2015/d3.input", "r") as f:
             for line in f.readlines():
+                line = line[:-1]  # cut trailing \n
                 print()
-                print("Day 3, part 1:", delivery_part_1(line[:-1]))
-                print("Day 3, part 2:", delivery_part_2(line[:-1]))
+                print("Day 3, part 1:", delivery_part_1(line))
+                print("Day 3, part 2:", delivery_part_2(line))
