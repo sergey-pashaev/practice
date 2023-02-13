@@ -11,3 +11,6 @@ check:
 
 tests:
 	python3 -m unittest discover tests/
+
+test:
+	python3 -m unittest $(path)
